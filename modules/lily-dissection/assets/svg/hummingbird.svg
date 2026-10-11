@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600"><g>
+<defs>
+ <linearGradient id="hbBack" x1="0" y1="0" x2="1" y2="0.5"><stop offset="0" stop-color="#6cbf8a"></stop><stop offset="0.5" stop-color="#2f9d63"></stop><stop offset="1" stop-color="#1f6e46"></stop></linearGradient>
+ <linearGradient id="hbBelly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2f4ef"></stop><stop offset="1" stop-color="#c7cec2"></stop></linearGradient>
+ <radialGradient id="hbGorget" cx="0.6" cy="0.4" r="0.8"><stop offset="0" stop-color="#e23a58"></stop><stop offset="0.6" stop-color="#b21f39"></stop><stop offset="1" stop-color="#7d132a"></stop></radialGradient>
+ <linearGradient id="hbWing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a5a52" stop-opacity="0.9"></stop><stop offset="1" stop-color="#274740" stop-opacity="0.55"></stop></linearGradient>
+ <filter id="hbBlur"><feGaussianBlur stdDeviation="3"></feGaussianBlur></filter>
+</defs>
+
+<g fill="#26584a">
+ <path d="M 560 840 L 400 800 L 420 838 Z"></path>
+ <path d="M 560 855 L 396 855 L 420 872 Z"></path>
+ <path d="M 560 870 L 408 905 L 432 890 Z"></path>
+</g>
+
+<path d="M 560 840 C 600 740, 760 720, 880 776 C 940 806, 940 872, 880 902 C 760 956, 600 940, 560 840 Z" fill="url(#hbBack)"></path>
+
+<path d="M 610 900 C 700 946, 812 930, 872 898 C 900 884, 900 862, 872 872 C 780 906, 690 906, 620 862 C 604 872, 600 888, 610 900 Z" fill="url(#hbBelly)"></path>
+
+<circle cx="905" cy="812" r="74" fill="url(#hbBack)"></circle>
+
+<path d="M 850 770 C 890 742, 950 748, 972 792 C 940 772, 892 770, 858 792 Z" fill="#194f36" opacity="0.5" filter="url(#hbBlur)"></path>
+
+<path d="M 890 852 C 936 858, 966 846, 978 826 C 984 862, 956 892, 912 894 C 894 884, 886 868, 890 852 Z" fill="url(#hbGorget)"></path>
+
+<circle cx="930" cy="800" r="11" fill="#141414"></circle><circle cx="927" cy="796" r="4" fill="#fff" opacity="0.65"></circle>
+
+<path d="M 968 818 L 1200 806 L 1200 818 L 970 832 Z" fill="#2a2622"></path>
+
+<g opacity="0.92" filter="url(#hbBlur)">
+ <path d="M 740 812 C 640 700, 500 660, 430 690 C 520 720, 640 780, 720 858 C 740 852, 748 832, 740 812 Z" fill="url(#hbWing)"></path>
+</g>
+<path d="M 720 828 C 640 760, 560 730, 500 726" stroke="#1c3a33" stroke-width="3" fill="none" opacity="0.5"></path>
+</g></svg>

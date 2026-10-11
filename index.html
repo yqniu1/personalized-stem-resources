@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A speculative AI authoring prototype for personalized STEM teaching resources. Lily Dissection is the first working module.">
+  <title>Personalized STEM Resources</title>
+  <style>
+    :root{--ink:#213548;--muted:#526577;--paper:#f1f6fc;--white:#fff;--plum:#80345d;--line:#c5d4e3;--blue:#e0ecf8}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:18px/1.6 "Segoe UI",Arial,sans-serif}
+    a{color:var(--plum);text-underline-offset:4px}a:hover{text-decoration-thickness:2px}a:focus-visible,summary:focus-visible{outline:3px solid #17599c;outline-offset:5px}
+    .skip{position:absolute;top:-70px;left:20px;background:white;padding:10px}.skip:focus{top:10px;z-index:5}
+    .wrap{width:min(1160px,calc(100% - 64px));margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:28px 0;border-bottom:1px solid var(--line)}
+    .brand{font-size:17px;font-weight:650;color:var(--ink);text-decoration:none}nav{display:flex;flex-wrap:wrap;gap:24px;font-size:15px}nav a{color:var(--ink)}
+    h1,h2{font-family:Constantia,"Palatino Linotype",Georgia,serif;font-weight:400;line-height:1.08;letter-spacing:-.035em}h1{font-size:clamp(44px,5.6vw,76px);margin:18px 0 24px;max-width:760px}h2{font-size:clamp(32px,3.5vw,47px);margin:0 0 24px}h3{font-size:23px;line-height:1.25;margin:0 0 12px}
+    p{max-width:68ch;margin:0 0 20px}.intro{padding:52px 0 48px}.status{display:inline-block;border-left:4px solid var(--plum);padding-left:12px;font-size:15px;color:var(--muted)}.lede{font-size:22px;max-width:780px;line-height:1.5}
+    .origin{margin-top:24px;max-width:780px;color:var(--muted);font-size:16px}.example{display:grid;grid-template-columns:1fr 1.12fr;gap:38px;align-items:center;padding-bottom:64px}
+    blockquote{font-family:Constantia,Georgia,serif;font-size:30px;line-height:1.4;margin:12px 0 20px;padding-left:20px;border-left:2px solid var(--line)}.caption,figcaption{font-size:14px;color:var(--muted);line-height:1.5}figure{margin:0}figure img{display:block;width:100%;height:auto;border:1px solid var(--line);background:var(--white)}figcaption{margin-top:10px}
+    .button{display:inline-block;margin:8px 0;padding:12px 22px;background:var(--plum);color:white;border-radius:5px;text-decoration:none;font-weight:600}.button:hover{background:#652447}.example .caption{margin-bottom:12px}
+    section{padding:56px 0;border-top:1px solid var(--line);scroll-margin-top:20px}.diagram{width:100%;height:auto;display:block;margin:28px 0}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px}.two-col p{font-size:17px}
+    .module{display:grid;grid-template-columns:1.08fr 1fr;gap:40px;align-items:start}.module img{border-radius:6px}.module ul{padding-left:21px;font-size:17px}.module li{margin-bottom:9px}
+    .pattern-list{margin:24px 0 0;padding:0;list-style:none}.pattern-list li{padding:15px 0;border-top:1px solid var(--line);display:grid;grid-template-columns:160px 1fr;gap:20px}.pattern-list strong{font-size:17px}.pattern-list span{font-size:17px}
+    .funding{background:var(--blue);padding:32px;border-radius:8px}.funding h3{margin-top:0}.funding ol{padding-left:24px;font-size:17px}.funding li{margin:12px 0}details{margin-top:28px;font-size:16px}summary{cursor:pointer;color:var(--plum)}details p{margin-top:14px}
+    footer{padding:28px 0 36px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}footer p{max-width:90ch}
+    @media(max-width:760px){.wrap{width:calc(100% - 36px)}header{align-items:flex-start;flex-direction:column;gap:12px;padding:20px 0}nav{gap:18px}.intro{padding-top:32px}.lede{font-size:20px}.example,.two-col,.module{grid-template-columns:1fr;gap:26px}.example{padding-bottom:36px}blockquote{font-size:25px}section{padding:36px 0}.pattern-list li{grid-template-columns:1fr;gap:6px}.funding{padding:24px}.diagram{min-height:120px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="wrap">
+    <header>
+      <a class="brand" href="index.html">Personalized STEM Resources</a>
+      <nav aria-label="Project"><a href="#approach">Approach</a><a href="#lily">Lily module</a><a href="#catalyst">Catalyst plan</a></nav>
+    </header>
+    <main id="main">
+      <div class="intro">
+        <span class="status">Speculative authoring prototype · 2027 Tools Competition proposal</span>
+        <h1>Talk a teaching resource into existence.</h1>
+        <p class="lede">A teacher knows what their class needs. The vision is to turn that need into a working STEM resource through conversation, guided by learning patterns and a collection of prebuilt tools.</p>
+        <p class="origin">I built the initial Lily application for a teacher's need in under four hours, using AI workflows and a rudimentary Learnability Patterns knowledge source. The current module includes later refinements. Catalyst support would help make this process usable by teachers themselves.</p>
+      </div>
+      <div class="example">
+        <div>
+          <p class="caption">Illustrative lesson request, based on the Lily module's goal</p>
+          <blockquote>“My class is investigating how flower structures help plants reproduce. Let them take a flower apart and see how pollen moves.”</blockquote>
+          <p>The lesson shaped the interaction: explore structures, explain their jobs, and make pollen transfer visible.</p>
+          <a class="button" href="modules/lily-dissection/index.html">Open the Lily module</a>
+          <p class="caption">Working 3-D and 2-D resource. Opens offline; no installation.</p>
+        </div>
+        <figure>
+          <img src="docs/images/lily-disassembled.png" width="1440" height="1000" alt="Screenshot of the earlier 3-D Lily prototype with flower structures separated around the bloom">
+          <figcaption>A capture of the 3-D prototype. The flower model is a purchased asset with a separate license.</figcaption>
+        </figure>
+      </div>
+      <section id="approach">
+        <h2>From a lesson need to a classroom resource</h2>
+        <p>The proposed authoring tool would combine curriculum context, learning-design guidance, and reusable interactions. Teachers would preview the result and ask for changes before using it.</p>
+        <img class="diagram" src="docs/images/authoring-workflow.svg" width="1120" height="330" alt="Proposed workflow: teacher lesson need, learning patterns and prebuilt tools, build and teacher review, classroom resource. Classroom feedback leads to revision.">
+        <div class="two-col">
+          <div><h3>Personalized to the teaching context</h3><p>The teacher could specify a learning goal, relevant lesson material, student needs, and constraints such as classroom devices or offline access. These choices would shape the resource's content, interaction, and format.</p></div>
+          <div><h3>Learning patterns guide the choices</h3><p>Patterns such as coherence, scaffolding, and explanatory feedback would help the workflow connect what learners do with what the lesson aims to teach. The tool would explain those choices for teacher review.</p></div>
+        </div>
+        <details><summary>What exists today?</summary><p>Lily is a working module produced through a developer-led AI workflow. It has one user; three teachers are giving feedback on the broader work. The teacher-facing conversational authoring service, reusable tool library, and structured evaluation are proposed development.</p></details>
+      </section>
+      <section id="lily">
+        <h2>Lily Dissection: the first module</h2>
+        <div class="module">
+          <figure><img src="docs/images/lily-2d.png" width="1440" height="1000" loading="lazy" alt="2-D Lily activity showing flower structures, controls, part explanations, and a guided mission"><figcaption>The 2-D option uses editable SVG art. Both views are packaged in a single offline HTML file.</figcaption></figure>
+          <div>
+            <p>Lily supports a Grade 4 lesson on flower structures and pollination. It is an independent supplement informed by <a href="https://openscied.org/">OpenSciEd</a> Unit 4.4, Lesson 13.</p>
+            <ul><li>Separate the structures and explore their functions.</li><li>Find nectar and move pollen to the stigma.</li><li>Use the illustration alongside observation, discussion, and student explanations.</li></ul>
+            <p>The mission records actions completed. Classroom evaluation would need to examine what students understand and can explain.</p>
+            <a href="docs/tools-competition-2027-activity-teardown.md">Read the illustrated walkthrough</a>
+          </div>
+        </div>
+        <ul class="pattern-list">
+          <li><strong>Coherence</strong><span>The lesson emphasizes what flower structures do. Names serve as supporting vocabulary.</span></li>
+          <li><strong>Scaffolding</strong><span>A task sequence and visible pollen target help learners navigate the activity.</span></li>
+          <li><strong>Explanatory feedback</strong><span>Part descriptions and pollen-transfer feedback connect actions to the modeled process.</span></li>
+        </ul>
+      </section>
+      <section id="catalyst">
+        <div class="two-col">
+          <div><h2>What Catalyst would make possible</h2><p>The initial application is evidence that a teacher's need can shape a working resource through conversation. The next step is to make authoring repeatable across lessons and accessible without a developer.</p><p>We would measure teachers' total preparation effort, required assistance, resource accuracy, curriculum fit, and classroom usability. A comparison with general-purpose AI on matched lesson requests would test the value of the combined workflow.</p><a href="docs/tools-competition-2027-proposal.md">Read the Phase I proposal draft</a></div>
+          <div class="funding"><h3>Proposed development and pilot</h3><ol><li>Build a teacher-facing workflow for requests, previews, and conversational revisions.</li><li>Strengthen the pattern knowledge source, reusable STEM tools, and quality review.</li><li>Invite the three feedback teachers to refine it, then recruit a broader pilot once independent authoring is feasible.</li><li>Share an evaluation rubric, protocol, and aggregate findings.</li></ol></div>
+        </div>
+      </section>
+    </main>
+    <footer><p>Created by Peter Niu with AI assistance. Working project title: Personalized STEM Resources. Curriculum credit: <a href="https://openscied.org/">OpenSciEd</a>; no publisher endorsement. Earlier 3-D screenshots depict a purchased Stargazer Lilies model. <a href="THIRD_PARTY_NOTICES.md">Credits and distribution notes</a>.</p></footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Take a Lily Apart — 3D Flower Lab</title>
+<style>
+  :root{
+    --pollen:#c9772e;   /* makes pollen  (stamen/anther) */
+    --catch:#b2367a;    /* catches pollen (stigma)       */
+    --seeds:#2e9e5b;    /* makes seeds   (ovary)         */
+    --advert:#d6478f;   /* draws pollinators (petal)     */
+    --protect:#3b7dd8;  /* protects the bud (sepal)      */
+    --ink:#243240; --muted:#5d6b78; --line:#d8dfe6; --panel:#ffffff;
+    --bg1:#eef4f1; --bg2:#e7eef5; --accent:#3f7d5c;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:linear-gradient(160deg,var(--bg1),var(--bg2));-webkit-tap-highlight-color:transparent}
+  #stage{position:fixed;inset:0}
+  canvas{display:block;width:100%;height:100%;touch-action:none}
+
+  /* ---- top bar ---- */
+  #topbar{position:fixed;left:0;right:0;top:0;display:flex;gap:10px;align-items:center;
+    padding:10px 14px;pointer-events:none;flex-wrap:wrap}
+  .brand{pointer-events:auto;background:rgba(255,255,255,.9);border:1px solid var(--line);
+    border-radius:12px;padding:7px 13px;font-weight:700;font-size:1rem;box-shadow:0 2px 8px rgba(30,50,70,.09)}
+  .brand small{display:block;font-weight:500;color:var(--muted);font-size:.72rem;margin-top:1px}
+  .legend{pointer-events:auto;display:flex;gap:6px;flex-wrap:wrap;background:rgba(255,255,255,.82);
+    border:1px solid var(--line);border-radius:12px;padding:6px 9px;box-shadow:0 2px 8px rgba(30,50,70,.07)}
+  .lg{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;color:#3a4854}
+  .lg i{width:11px;height:11px;border-radius:50%;display:inline-block}
+
+  /* ---- mission panel ---- */
+  #mpanel{position:fixed;left:14px;top:64px;width:250px;max-width:44vw;background:rgba(255,255,255,.94);
+    border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:0 6px 20px rgba(30,50,70,.13)}
+  #mpanel h2{margin:0 0 9px;font-size:.95rem}
+  .mission{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .mission li{display:flex;gap:9px;align-items:flex-start;font-size:.86rem;color:#3a4854}
+  .mission .box{flex:none;width:19px;height:19px;border-radius:6px;border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;margin-top:1px;transition:.2s}
+  .mission li.done{color:var(--muted)}
+  .mission li.done .box{background:var(--seeds);border-color:var(--seeds)}
+  .mission li.active{color:var(--ink);font-weight:600}
+  .mission li.active .box{border-color:var(--accent);box-shadow:0 0 0 3px rgba(63,125,92,.15)}
+  .progress{height:7px;background:#eef2f5;border-radius:6px;overflow:hidden;margin-top:11px}
+  .progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--seeds),var(--advert));transition:width .35s}
+
+  /* ---- bottom controls ---- */
+  #controls{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;display:flex;gap:12px;align-items:center;
+    background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:16px;padding:11px 16px;
+    box-shadow:0 6px 20px rgba(30,50,70,.15);max-width:94vw}
+  #controls label{font-size:.82rem;font-weight:600;color:#3a4854;white-space:nowrap}
+  #explode{width:190px;max-width:40vw;accent-color:var(--accent)}
+  .btn{border:1px solid var(--line);background:#fff;border-radius:11px;padding:9px 14px;font-size:.85rem;
+    font-weight:600;color:var(--ink);cursor:pointer;white-space:nowrap;transition:.15s;display:inline-flex;gap:7px;align-items:center}
+  .btn:hover{border-color:#b9c4cd;transform:translateY(-1px)}
+  .btn:focus-visible,#explode:focus-visible{outline:3px solid #ffb300;outline-offset:2px}
+  .btn.active{background:linear-gradient(90deg,#fff2cf,#ffe6a8);border-color:#e6c56a;color:#5a4326}
+  /* prominent Start-over button */
+  .btn-reset{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;padding:10px 18px}
+  .btn-reset:hover{background:#356b4f;border-color:#356b4f}
+
+  /* sort buckets */
+  #buckets{position:fixed;left:50%;transform:translateX(-50%);bottom:76px;display:none;gap:12px;
+    z-index:12;max-width:96vw;flex-wrap:wrap;justify-content:center}
+  #buckets.show{display:flex}
+  .bucket{min-width:150px;background:rgba(255,255,255,.95);border:2.5px dashed var(--line);border-radius:14px;
+    padding:10px 14px;text-align:center;box-shadow:0 6px 18px rgba(30,50,70,.14);transition:.15s}
+  .bucket .bl{font-size:.82rem;font-weight:700;line-height:1.2}
+  .bucket .bc{font-size:.74rem;color:var(--muted);margin-top:3px}
+  .bucket.over{transform:translateY(-4px) scale(1.04)}
+  .bucket.full{border-style:solid;background:#eef8f0}
+  .bucket .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+
+  /* drag chip (the "carried part") */
+  #chip{position:fixed;left:0;top:0;display:none;z-index:40;pointer-events:none;transform:translate(-50%,-50%);
+    background:#fff;border:2px solid;border-radius:20px;padding:7px 13px;font-size:.84rem;font-weight:700;
+    box-shadow:0 8px 22px rgba(30,50,70,.28);white-space:nowrap}
+  #chip.show{display:block}
+  #chip.wrong{animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translate(-50%,-50%)}25%{transform:translate(-58%,-50%)}75%{transform:translate(-42%,-50%)}}
+
+  /* ---- info card ---- */
+  #card{position:fixed;right:14px;top:64px;width:310px;max-width:46vw;background:var(--panel);
+    border:1px solid var(--line);border-radius:16px;padding:16px 17px;box-shadow:0 10px 30px rgba(30,50,70,.18);
+    transform:translateX(120%);opacity:0;transition:transform .32s cubic-bezier(.2,.7,.3,1),opacity .32s}
+  #card.show{transform:none;opacity:1}
+  #card .close{position:absolute;right:10px;top:9px;border:none;background:transparent;font-size:1.2rem;color:var(--muted);cursor:pointer;line-height:1}
+  .partname{font-size:1.22rem;font-weight:700;margin:0 26px 8px 0}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:700;color:#fff;
+    padding:4px 10px;border-radius:20px;margin-bottom:10px}
+  .desc{margin:0;color:#33424f;font-size:.92rem;line-height:1.5}
+  #card.win{background:linear-gradient(90deg,#e8f8ee,#fde9f2);border-color:#bfe6cd}
+
+  /* hint toast */
+  #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;background:rgba(36,50,64,.94);color:#fff;
+    padding:9px 15px;border-radius:11px;font-size:.85rem;max-width:88vw;text-align:center;opacity:0;transition:opacity .3s;pointer-events:none}
+  #hint.show{opacity:1}
+  #hint b{color:#ffd766}
+
+  /* pointer-following badge shown while carrying pollen */
+  #pollencursor{position:fixed;left:-99px;top:0;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;
+    background:radial-gradient(circle at 50% 40%,#fff6c4 0%,#ffcf3f 46%,rgba(255,190,40,0) 72%);
+    box-shadow:0 0 13px 4px rgba(255,201,60,.85);pointer-events:none;z-index:30;display:none;
+    animation:pcbob .9s ease-in-out infinite}
+  #pollencursor.show{display:block}
+  #pollencursor::after{content:"pollen";position:absolute;left:50%;top:34px;transform:translateX(-50%);
+    font-size:.66rem;font-weight:800;color:#8a5a10;white-space:nowrap;text-shadow:0 1px 2px #fff,0 0 4px #fff}
+  @keyframes pcbob{50%{transform:scale(1.14)}}
+
+  #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));z-index:30}
+  .spin{width:38px;height:38px;border:4px solid #cdd8d2;border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  @media (max-width:720px){
+    #mpanel{top:auto;bottom:88px;left:8px;width:210px;padding:10px 12px}
+    #card{right:8px;left:8px;width:auto;max-width:none;top:auto;bottom:88px;transform:translateY(130%)}
+    #card.show{transform:none}
+    .legend{display:none}
+    #controls{bottom:10px;padding:9px 12px;gap:8px}
+  }
+  /* keyboard parts nav (screen-reader + keyboard access) */
+  .kbdnav button{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  .kbdnav button:focus{position:fixed;left:50%;top:58px;transform:translateX(-50%);width:auto;height:auto;
+    background:#fff;border:2px solid var(--accent);border-radius:11px;padding:9px 14px;font-size:.88rem;font-weight:700;
+    color:var(--ink);box-shadow:0 6px 18px rgba(30,50,70,.22);z-index:26;outline:3px solid #ffb300;outline-offset:2px}
+  /* WebGL fallback */
+  #nowebgl{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px;text-align:center;
+    flex-direction:column;gap:14px;background:linear-gradient(160deg,var(--bg1),var(--bg2));z-index:40}
+  #nowebgl a{color:var(--accent);font-weight:700}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c"></canvas></div>
+<nav id="kbdnav" class="kbdnav" aria-label="Flower parts — press Tab to reach each part, Enter to choose it"></nav>
+
+<div id="topbar">
+  <div class="brand">Take a Lily Apart<small>Explore how a flower's structures work together</small></div>
+  <div class="legend" id="legend"></div>
+</div>
+
+<aside id="mpanel">
+  <h2>Your mission</h2>
+  <ul class="mission" id="mission"></ul>
+  <div class="progress"><span id="progbar"></span></div>
+</aside>
+
+<div id="buckets" aria-hidden="true"></div>
+
+<div id="controls">
+  <button class="btn" id="takeapart">✋ Take apart</button>
+  <button class="btn" id="sort">🗂️ Sort by job</button>
+  <button class="btn" id="pollinate">🐝 Move the pollen</button>
+  <button class="btn btn-reset" id="reset">↺ Start over</button>
+</div>
+
+<div id="chip" aria-hidden="true"></div>
+
+<section id="card" aria-live="polite">
+  <button class="close" id="cardClose" aria-label="Close">×</button>
+  <h3 class="partname" id="pname">—</h3>
+  <span class="chip" id="prole"></span>
+  <p class="desc" id="pdesc"></p>
+</section>
+
+<div id="hint"></div>
+<div id="pollencursor" aria-hidden="true"></div>
+
+<div id="loading"><div class="spin"></div><div>Loading the 3-D lily…</div></div>
+<div id="nowebgl">
+  <h2>3-D needs WebGL</h2>
+  <p>This device's browser can't show the 3-D flower.<br>Use the 2-D flower lab instead:</p>
+  <a href="index-2d.html">Open the 2-D Lily Lab</a>
+</div>
+
+<script>__THREE_BUNDLE_JS__</script>
+<script>window.__GLB_B64__="__GLB_BASE64__";</script>
+<script>
+(function(){
+  "use strict";
+  var THREE=window.THREE, GLTFLoader=window.GLTFLoader, OrbitControls=window.OrbitControls, MeshoptDecoder=window.MeshoptDecoder;
+
+  // ---------- pollination-role frame (reused from the 2-D app) ----------
+  var ROLES={
+    "make-pollen":  {name:"Makes the pollen",    color:"#c9772e"},
+    "catches-pollen":{name:"Catches the pollen", color:"#b2367a"},
+    "make-seeds":   {name:"Makes the seeds",     color:"#2e9e5b"},
+    "advertise":    {name:"Draws pollinators in",color:"#d6478f"},
+    "protect":      {name:"Protects the bud",    color:"#3b7dd8"}
+  };
+  // organ metadata keyed by GLB node-name prefix (function-first, Grade-4)
+  var ORGAN={
+    front_tepal:{name:"Petal",role:"advertise",
+      desc:"Big and brightly coloured so bees and hummingbirds can spot the flower from far off. Deep at its base is the sweet nectar that feeds them — and when the flower was a bud, these petals wrapped around and kept it safe."},
+    front_stamen:{name:"Stamen",role:"make-pollen",
+      desc:"The part that makes pollen. Its tip (the anther) is loaded with yellow pollen; the thin stalk holds it up high so a visiting pollinator brushes past and picks some up."},
+    front_pistil:{name:"Pistil",role:"catches-pollen",
+      desc:"The whole middle part. Its sticky top — the stigma — catches pollen carried in from another flower. Deep inside, the ovary at the base grows the seeds."},
+    second_pistil:{name:"The other flower's stigma",role:"catches-pollen",
+      desc:"The sticky top of the second flower. When a pollinator brings pollen here from the first flower, it sticks — and a seed can begin to grow. This is how pollen travels between two flowers."}
+  };
+  function organKey(nodeName){
+    if(nodeName.indexOf("front_tepal")===0)return "front_tepal";
+    if(nodeName.indexOf("front_stamen")===0)return "front_stamen";
+    if(nodeName==="front_pistil")return "front_pistil";
+    if(nodeName==="second_pistil")return "second_pistil";
+    return null;
+  }
+
+  // ---------- render legend ----------
+  (function(){
+    var order=["advertise","make-pollen","catches-pollen","make-seeds"];
+    var el=document.getElementById("legend");
+    order.forEach(function(k){
+      var s=document.createElement("span");s.className="lg";
+      s.innerHTML='<i style="background:'+ROLES[k].color+'"></i>'+ROLES[k].name;
+      el.appendChild(s);
+    });
+  })();
+
+  // ---------- WebGL check ----------
+  var canvas=document.getElementById("c");
+  var testGL=canvas.getContext("webgl2")||canvas.getContext("webgl");
+  if(!testGL){document.getElementById("loading").style.display="none";document.getElementById("nowebgl").style.display="flex";return;}
+
+  // ---------- scene ----------
+  var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  var scene=new THREE.Scene();
+  var bg=new THREE.Color(0xeaf1ee);
+  scene.background=bg;
+  var camera=new THREE.PerspectiveCamera(42,1,0.001,100);
+
+  scene.add(new THREE.AmbientLight(0xffffff,1.15));
+  var key=new THREE.DirectionalLight(0xffffff,2.1);key.position.set(0.6,1.4,1.0);scene.add(key);
+  var fill=new THREE.DirectionalLight(0xffffff,0.7);fill.position.set(-1,0.4,-0.8);scene.add(fill);
+  var rim=new THREE.DirectionalLight(0xffffff,0.5);rim.position.set(0,0.6,-1.3);scene.add(rim);
+
+  var controls=new OrbitControls(camera,canvas);
+  controls.enableDamping=true;controls.dampingFactor=0.08;
+  controls.enablePan=false;controls.minDistance=0.18;controls.maxDistance=2.2;
+  controls.maxPolarAngle=Math.PI*0.92;
+
+  function resize(){
+    var w=window.innerWidth,h=window.innerHeight;
+    renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+  }
+  window.addEventListener("resize",resize);resize();
+
+  // ---------- state ----------
+  var pickable=[];            // meshes: front organs + second_pistil
+  var organBase={};           // name -> base position (Vector3)
+  var organDir={};            // name -> outward unit dir for explode
+  var frontCenter=new THREE.Vector3();
+  var selected=null;
+  var EXPLODE_DIST=0.11;
+  var camHome={pos:new THREE.Vector3(),tgt:new THREE.Vector3()};
+  var tween=null;             // {p0,p1,t0,t1,tt,tgt0,tgt1,dur,start}
+
+  // ---- interaction mode + drag/sort state ----
+  var mode="explore";         // "explore" | "sort" | "pollinate"
+  var organTarget={};         // name -> Vector3 the organ eases toward
+  var organHidden={};         // name -> bool (sorted into a bucket -> shrink away)
+  var apartState=false;       // is the flower currently taken apart?
+  var grab=null;              // organ currently being dragged
+  var press=null;             // {x,y,t,moved}
+  var dragPlane=new THREE.Plane(),dragOffset=new THREE.Vector3(),scratch=new THREE.Vector3(),camDir=new THREE.Vector3();
+  var sortedCount=0,SORT_TOTAL=13;
+
+  // ---- pollination-transfer state (enhancement) ----
+  var antherStamens=[];       // the 6 front stamens (pollen sources)
+  var secondStigma=new THREE.Vector3();
+  var secondOvary=new THREE.Vector3();
+  var nectarPoint=new THREE.Vector3();
+  var pollenSprites=[];       // glowing dots on the anthers
+  var nectarSprite=null;
+  var seedSprite=null;
+  var carrying=null;          // the stamen whose pollen we picked up
+  var transfer=null;          // {from,to,start,dur}
+  var targetMarker=null;      // big pink marker on the OTHER flower's stigma (where pollen goes)
+  var guideCurve=null,guideDots=[],guideDot=null;  // arc + traveller showing the path
+
+  // small round glow texture
+  function glowTex(r,g,b){
+    var s=64,cv=document.createElement("canvas");cv.width=cv.height=s;
+    var x=cv.getContext("2d"),gr=x.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+    gr.addColorStop(0,"rgba("+r+","+g+","+b+",1)");
+    gr.addColorStop(0.4,"rgba("+r+","+g+","+b+",0.85)");
+    gr.addColorStop(1,"rgba("+r+","+g+","+b+",0)");
+    x.fillStyle=gr;x.fillRect(0,0,s,s);
+    var t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;return t;
+  }
+  // crisp target reticle (concentric rings + centre dot) so "pollen goes HERE" reads clearly
+  function ringTex(r,g,b){
+    var s=128,cv=document.createElement("canvas");cv.width=cv.height=s;var c=s/2;
+    var x=cv.getContext("2d");x.lineCap="round";
+    x.strokeStyle="rgba("+r+","+g+","+b+",1)";x.lineWidth=11;
+    x.beginPath();x.arc(c,c,c-12,0,Math.PI*2);x.stroke();
+    x.strokeStyle="rgba("+r+","+g+","+b+",0.6)";x.lineWidth=7;
+    x.beginPath();x.arc(c,c,c-40,0,Math.PI*2);x.stroke();
+    x.fillStyle="rgba("+r+","+g+","+b+",0.95)";x.beginPath();x.arc(c,c,11,0,Math.PI*2);x.fill();
+    var t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;return t;
+  }
+  var POLLEN_TEX=glowTex(255,208,90), SEED_TEX=glowTex(120,220,120);
+  function makeSprite(tex,size){
+    var m=new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,depthTest:false});
+    var sp=new THREE.Sprite(m);sp.scale.set(size,size,size);return sp;
+  }
+
+  // ---------- load ----------
+  var bin=atob(window.__GLB_B64__),bytes=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+  var loader=new GLTFLoader();
+  MeshoptDecoder.ready.then(function(){
+    loader.setMeshoptDecoder(MeshoptDecoder);
+    loader.parse(bytes.buffer,"",onLoad,function(err){
+      document.getElementById("loading").innerHTML="<div>Could not load the 3-D flower.</div>";
+      console.error(err);
+    });
+  });
+
+  function onLoad(gltf){
+    var model=gltf.scene;
+    scene.add(model);
+    model.updateWorldMatrix(true,true);
+
+    // collect pickable organs; clone their materials so we can highlight one at a time
+    var frontOrgans=[];
+    model.traverse(function(o){
+      if(!o.isMesh)return;
+      var key=organKey(o.name);
+      if(key){
+        o.material=o.material.clone();
+        o.userData.key=key;
+        o.userData.emissiveBase=o.material.emissive?o.material.emissive.clone():new THREE.Color(0);
+        pickable.push(o);
+        if(o.name.indexOf("front_")===0)frontOrgans.push(o);
+      }
+    });
+
+    // front-bloom center = mean of front organ centers (world)
+    var c=new THREE.Vector3(),tmp=new THREE.Vector3();
+    frontOrgans.forEach(function(o){o.getWorldPosition(tmp);c.add(tmp);});
+    c.multiplyScalar(1/frontOrgans.length);
+    frontCenter.copy(c);
+
+    // per-organ explode direction (outward from bloom center; pistil goes up)
+    pickable.forEach(function(o){
+      o.getWorldPosition(tmp);
+      organBase[o.name]=o.position.clone();          // local base (parent is scene root-ish)
+      organTarget[o.name]=o.position.clone();        // where it eases toward
+      o.userData.baseScale=o.scale.clone();          // preserve the dequantization scale
+      o.userData.sf=1;                               // sort-shrink factor 1..0
+      var d=tmp.clone().sub(frontCenter);
+      if(o.userData.key==="front_pistil"||d.length()<1e-3){d.set(0,1,0);}
+      d.y+=0.25; d.normalize();
+      organDir[o.name]=d;
+    });
+
+    // ---- pollination geometry ----
+    var gbox=new THREE.Box3(),topLocal;
+    pickable.forEach(function(o){
+      if(o.userData.key==="front_stamen"){
+        antherStamens.push(o);
+        o.geometry.computeBoundingBox();
+        var gb=o.geometry.boundingBox;
+        // anther tip = highest point of the stamen in its own local frame
+        topLocal=new THREE.Vector3((gb.min.x+gb.max.x)/2,gb.max.y,(gb.min.z+gb.max.z)/2);
+        var sp=makeSprite(POLLEN_TEX,0.075);sp.userData.baseSize=0.075;
+        sp.position.copy(topLocal);sp.visible=false;
+        o.add(sp);                                   // rides the stamen through explode
+        o.userData.pollen=sp;pollenSprites.push(sp);
+      }
+    });
+    // second bloom's stigma = top of second_pistil (world)
+    var sp2=pickable.filter(function(o){return o.userData.key==="second_pistil";})[0];
+    if(sp2){var bb=new THREE.Box3().setFromObject(sp2);
+      secondStigma.set((bb.min.x+bb.max.x)/2,bb.max.y,(bb.min.z+bb.max.z)/2);
+      secondOvary.set((bb.min.x+bb.max.x)/2,bb.min.y+0.01,(bb.min.z+bb.max.z)/2);}
+    // nectar = deep at the base of the front pistil (the flower's throat)
+    var fp=pickable.filter(function(o){return o.userData.key==="front_pistil";})[0];
+    if(fp){var pb=new THREE.Box3().setFromObject(fp);
+      nectarPoint.set((pb.min.x+pb.max.x)/2,pb.min.y+0.015,(pb.min.z+pb.max.z)/2);}
+    nectarSprite=makeSprite(glowTex(255,196,70),0.045);
+    nectarSprite.position.copy(nectarPoint);nectarSprite.material.opacity=0.7;
+    nectarSprite.userData.nectar=true;scene.add(nectarSprite);
+    seedSprite=makeSprite(SEED_TEX,0.05);seedSprite.position.copy(secondOvary);
+    seedSprite.visible=false;scene.add(seedSprite);
+    // crisp pink "pollen goes here" target reticle on the second flower's stigma
+    targetMarker=makeSprite(ringTex(226,60,140),0.09);targetMarker.userData.baseSize=0.09;
+    targetMarker.position.copy(secondStigma);targetMarker.visible=false;scene.add(targetMarker);
+    // breadcrumb trail + travelling dot that show the pollen's path (built per pollen-mode entry)
+    for(var gi=0;gi<11;gi++){var gd=makeSprite(glowTex(226,74,150),0.038);gd.material.opacity=0.6;gd.visible=false;scene.add(gd);guideDots.push(gd);}
+    guideDot=makeSprite(POLLEN_TEX,0.06);guideDot.visible=false;scene.add(guideDot);
+
+    buildKbdNav();buildBuckets();
+    frameHome();
+    document.getElementById("loading").style.display="none";
+    setHint('Spin it by dragging the background. <b>Drag a petal</b> to pull it off, or tap a part to learn what it does.',5200);
+  }
+
+  // keyboard/screen-reader access to every part + the pollen transfer
+  function buildKbdNav(){
+    var nav=document.getElementById("kbdnav");if(!nav)return;
+    var items=[
+      ["Petal — draws pollinators in",function(){selectByNameSafe("front_tepal_1");}],
+      ["Stamen — makes the pollen",function(){selectByNameSafe("front_stamen_1");}],
+      ["Pistil — catches pollen and makes seeds",function(){selectByNameSafe("front_pistil");}],
+      ["Nectar — the pollinators' sweet reward",function(){revealNectar();}],
+      ["Move pollen to the other flower",function(){doKeyboardPollinate();}]
+    ];
+    items.forEach(function(it){
+      var b=document.createElement("button");b.type="button";b.textContent=it[0];
+      b.addEventListener("click",it[1]);nav.appendChild(b);
+    });
+  }
+  function selectByNameSafe(n){for(var i=0;i<pickable.length;i++){if(pickable[i].name===n){select(pickable[i]);return;}}}
+  function doKeyboardPollinate(){
+    setMode("pollinate");
+    setTimeout(function(){
+      carrying=antherStamens[0];
+      if(carrying)startTransfer(carrying);
+    },650);   // let the camera settle so the arc is visible
+  }
+
+  // default camera: in front of the open face of the front bloom, slightly above
+  function frameHome(){
+    var box=new THREE.Box3();
+    pickable.forEach(function(o){box.expandByObject(o);});
+    var size=box.getSize(new THREE.Vector3());
+    var r=Math.max(size.x,size.y,size.z);
+    // front bloom opens roughly toward +X,-Z in exported space; view from there
+    var dir=new THREE.Vector3(0.75,0.35,1.0).normalize();
+    var pos=frontCenter.clone().add(dir.multiplyScalar(r*1.75));
+    camHome.pos.copy(pos);camHome.tgt.copy(frontCenter);
+    camera.position.copy(pos);
+    controls.target.copy(frontCenter);
+    camera.near=r/100;camera.far=r*100;camera.updateProjectionMatrix();
+    controls.update();
+  }
+
+  // ---------- take apart / put back (organs ease toward organTarget in the loop) ----------
+  // Spread organs in the CURRENT screen plane (depth component removed) so nothing
+  // flies toward the camera and it reads as a clean exploded diagram from any angle.
+  function takeApartAll(){
+    camera.getWorldDirection(camDir);
+    pickable.forEach(function(o){
+      if(o.userData.key==="second_pistil")return;   // second bloom stays whole
+      o.getWorldPosition(scratch);
+      var radial=scratch.clone().sub(frontCenter);
+      radial.addScaledVector(camDir,-radial.dot(camDir));   // drop toward/away-camera part
+      if(radial.lengthSq()<1e-6)radial.copy(camera.up);      // central pieces rise on screen
+      radial.normalize();
+      organTarget[o.name].copy(organBase[o.name]).addScaledVector(radial,EXPLODE_DIST);
+    });
+    apartState=true;setTakeApartLabel();mission.done("apart");
+  }
+  function reassemble(){
+    pickable.forEach(function(o){organTarget[o.name].copy(organBase[o.name]);});
+    apartState=false;setTakeApartLabel();
+  }
+  function setTakeApartLabel(){
+    document.getElementById("takeapart").textContent=apartState?"🌸 Put together":"✋ Take apart";
+  }
+  // pull the camera back so the spread-out organs stay in frame
+  function frameApart(){
+    var pos=frontCenter.clone().add(camHome.pos.clone().sub(frontCenter).multiplyScalar(1.3));
+    startTween(pos,frontCenter.clone());
+  }
+  document.getElementById("takeapart").addEventListener("click",function(){
+    if(mode!=="explore")setMode("explore");
+    if(apartState){reassemble();startTween(camHome.pos.clone(),camHome.tgt.clone());}
+    else{takeApartAll();frameApart();}
+  });
+
+  // ---------- unified pointer input: drag organs, orbit empty space, tap to identify ----------
+  var ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+  function setRay(cx,cy){
+    var rect=canvas.getBoundingClientRect();
+    ndc.x=((cx-rect.left)/rect.width)*2-1;
+    ndc.y=-((cy-rect.top)/rect.height)*2+1;
+    ray.setFromCamera(ndc,camera);
+  }
+  function draggable(o){
+    return o && o.userData.key!=="second_pistil" && !organHidden[o.name];
+  }
+  // Capture-phase on window fires before OrbitControls' canvas listener, so grabbing
+  // an organ can veto the orbit for this gesture (set controls.enabled=false first).
+  window.addEventListener("pointerdown",function(e){
+    if(e.target!==canvas)return;                    // ignore clicks on the UI
+    press={x:e.clientX,y:e.clientY,t:performance.now(),moved:false};
+    if(mode==="pollinate")return;                   // pollinate = taps; let orbit handle drags
+    setRay(e.clientX,e.clientY);
+    var hit=ray.intersectObjects(pickable,false)[0];
+    if(hit&&draggable(hit.object)){
+      grab=hit.object;controls.enabled=false;
+      if(mode==="explore"){
+        grab.getWorldPosition(scratch);
+        camera.getWorldDirection(camDir);
+        dragPlane.setFromNormalAndCoplanarPoint(camDir,scratch);
+        var p=new THREE.Vector3();
+        dragOffset.set(0,0,0);
+        if(ray.ray.intersectPlane(dragPlane,p))dragOffset.copy(scratch).sub(p);
+      }else if(mode==="sort"){
+        showChip(grab,e.clientX,e.clientY);setEmissive(grab,true);
+      }
+    }
+  },true);
+
+  window.addEventListener("pointermove",function(e){
+    if(carrying)movePcur(e.clientX,e.clientY);       // pollen badge trails the pointer while carried
+    if(!press)return;
+    if(Math.abs(e.clientX-press.x)+Math.abs(e.clientY-press.y)>6)press.moved=true;
+    if(!grab)return;
+    if(mode==="explore"){
+      setRay(e.clientX,e.clientY);
+      var p=new THREE.Vector3();
+      if(ray.ray.intersectPlane(dragPlane,p)){
+        p.add(dragOffset);grab.parent.worldToLocal(p);
+        grab.position.copy(p);organTarget[grab.name].copy(p);
+      }
+      if(press.moved){apartState=true;setTakeApartLabel();mission.done("apart");}
+    }else if(mode==="sort"){
+      moveChip(e.clientX,e.clientY);highlightBucket(e.clientX,e.clientY);
+    }
+  });
+
+  window.addEventListener("pointerup",function(e){
+    if(!press)return;
+    var wasTap=!press.moved,g=grab;grab=null;
+    if(mode==="pollinate"){                          // rotation stays frozen; any release = a pick attempt
+      controls.enabled=false;setRay(e.clientX,e.clientY);pollinatePick(e.clientX,e.clientY);press=null;return;
+    }
+    controls.enabled=true;
+    if(mode==="sort"){
+      if(g){ if(wasTap){hideChip();setEmissive(g,false);select(g,true);} else dropSort(g,e.clientX,e.clientY); }
+      press=null;return;
+    }
+    if(wasTap){
+      setRay(e.clientX,e.clientY);
+      if(g)select(g);
+      else if(nectarSprite&&nectarSprite.visible&&ray.intersectObject(nectarSprite,false).length)revealNectar();
+    }
+    press=null;
+  });
+
+  function select(obj,skipTween){
+    if(selected&&selected!==obj)setEmissive(selected,false);
+    selected=obj;if(mode!=="sort")setEmissive(obj,true);
+    var key=obj.userData.key,info=ORGAN[key],role=ROLES[info.role];
+    document.getElementById("pname").textContent=info.name;
+    var chip=document.getElementById("prole");
+    chip.textContent=role.name;chip.style.background=role.color;
+    document.getElementById("pdesc").textContent=info.desc;
+    var card=document.getElementById("card");card.classList.remove("win");card.classList.add("show");
+    if(!skipTween){
+      var wp=new THREE.Vector3();obj.getWorldPosition(wp);
+      var off=camera.position.clone().sub(controls.target);
+      var dist=Math.max(0.22,Math.min(off.length()*0.8,0.5));
+      off.normalize().multiplyScalar(dist);
+      startTween(wp.clone().add(off),wp);
+    }
+    explored[key]=true;
+    if(Object.keys(explored).filter(function(k){return k.indexOf("front_")===0;}).length>=3)mission.done("explore");
+  }
+  var explored={};
+
+  function setEmissive(o,on){
+    if(!o.material.emissive)return;
+    if(on){o.material.emissive.setHex(0xffb020);o.material.emissiveIntensity=0.55;}
+    else{o.material.emissive.copy(o.userData.emissiveBase);o.material.emissiveIntensity=1;}
+  }
+
+  document.getElementById("cardClose").addEventListener("click",function(){
+    document.getElementById("card").classList.remove("show");
+    if(selected){setEmissive(selected,false);selected=null;}
+  });
+
+  // ---------- camera tween ----------
+  function startTween(p1,tgt1){
+    tween={p0:camera.position.clone(),p1:p1,tgt0:controls.target.clone(),tgt1:tgt1,start:performance.now(),dur:600};
+  }
+  function stepTween(now){
+    if(!tween)return;
+    var k=Math.min(1,(now-tween.start)/tween.dur);
+    var e=k<0.5?2*k*k:1-Math.pow(-2*k+2,2)/2;       // easeInOutQuad
+    camera.position.lerpVectors(tween.p0,tween.p1,e);
+    controls.target.lerpVectors(tween.tgt0,tween.tgt1,e);
+    if(k>=1)tween=null;
+  }
+
+  // ---------- prominent Start-over ----------
+  document.getElementById("reset").addEventListener("click",resetAll);
+  function resetAll(){
+    setMode("explore");
+    reassemble();unsortAll();
+    if(selected){setEmissive(selected,false);selected=null;}
+    document.getElementById("card").classList.remove("show");
+    if(seedSprite)seedSprite.visible=false;
+    setHint("",1);
+    startTween(camHome.pos.clone(),camHome.tgt.clone());
+  }
+
+  // ---------- activity switch (explore / sort / pollinate) ----------
+  var secondPistilObj=null,flyer=null;
+  function setMode(m){
+    if(m===mode)return;
+    if(mode==="sort")exitSort();
+    if(mode==="pollinate")exitPollinate();
+    mode=m;
+    document.getElementById("sort").classList.toggle("active",m==="sort");
+    document.getElementById("pollinate").classList.toggle("active",m==="pollinate");
+    if(m==="sort")enterSort();
+    if(m==="pollinate")enterPollinate();
+  }
+  document.getElementById("sort").addEventListener("click",function(){setMode(mode==="sort"?"explore":"sort");});
+  document.getElementById("pollinate").addEventListener("click",function(){setMode(mode==="pollinate"?"explore":"pollinate");});
+
+  // ---------- SORT activity: drag each part into its job bucket ----------
+  var BUCKETS=[
+    {role:"advertise",   label:"Draws pollinators in",       color:ROLES.advertise.color,      need:6,got:0},
+    {role:"make-pollen", label:"Makes the pollen",           color:ROLES["make-pollen"].color, need:6,got:0},
+    {role:"catches-pollen",label:"Catches pollen, makes seeds",color:ROLES["catches-pollen"].color,need:1,got:0}
+  ];
+  var bucketEls=[],chipEl=document.getElementById("chip");
+  function buildBuckets(){
+    var bar=document.getElementById("buckets");bar.innerHTML="";bucketEls=[];
+    BUCKETS.forEach(function(b){
+      var d=document.createElement("div");d.className="bucket";
+      d.innerHTML='<div class="bl"><span class="dot" style="background:'+b.color+'"></span>'+b.label+'</div><div class="bc">0 / '+b.need+'</div>';
+      bar.appendChild(d);bucketEls.push(d);
+    });
+  }
+  function enterSort(){
+    if(selected){setEmissive(selected,false);selected=null;}
+    document.getElementById("card").classList.remove("show");
+    reassemble();                                    // keep the flower whole — kids take it apart into the buckets
+    document.getElementById("buckets").classList.add("show");
+    frameApart();
+    setHint('🗂️ Drag each part off the flower into its <b>job</b> bucket — start with the petals.',7000);
+  }
+  function exitSort(){document.getElementById("buckets").classList.remove("show");hideChip();}
+  function unsortAll(){
+    BUCKETS.forEach(function(b){b.got=0;});sortedCount=0;
+    pickable.forEach(function(o){organHidden[o.name]=false;});
+    buildBuckets();
+  }
+  function showChip(o,x,y){
+    var info=ORGAN[o.userData.key],role=ROLES[info.role];
+    chipEl.textContent=info.name;chipEl.style.borderColor=role.color;chipEl.style.color=role.color;
+    chipEl.classList.remove("wrong");chipEl.classList.add("show");moveChip(x,y);
+  }
+  function moveChip(x,y){chipEl.style.left=x+"px";chipEl.style.top=y+"px";}
+  function hideChip(){chipEl.classList.remove("show");}
+  function bucketAt(x,y){
+    for(var i=0;i<bucketEls.length;i++){var r=bucketEls[i].getBoundingClientRect();
+      if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom)return i;}
+    return -1;
+  }
+  function highlightBucket(x,y){var idx=bucketAt(x,y);bucketEls.forEach(function(el,i){el.classList.toggle("over",i===idx);});}
+  function dropSort(o,x,y){
+    hideChip();setEmissive(o,false);
+    bucketEls.forEach(function(el){el.classList.remove("over");});
+    var idx=bucketAt(x,y),role=ORGAN[o.userData.key].role;
+    if(idx>=0&&BUCKETS[idx].role===role){
+      organHidden[o.name]=true;                        // shrink away into the bucket
+      var b=BUCKETS[idx];b.got++;sortedCount++;
+      bucketEls[idx].querySelector(".bc").textContent=b.got+" / "+b.need;
+      if(b.got>=b.need)bucketEls[idx].classList.add("full");
+      if(sortedCount>=SORT_TOTAL){mission.done("sort");setHint("🎉 Every part sorted by its job! Press <b>Start over</b> to build the flower again.",7000);}
+    }else if(idx>=0){
+      chipEl.classList.add("wrong");
+      setHint("Not quite — a <b>"+ORGAN[o.userData.key].name.toLowerCase()+"</b>’s job is “"+ROLES[role].name.toLowerCase()+".” Try another bucket.",5000);
+    }
+  }
+
+  // ---------- pollination transfer (enhancement) ----------
+  // project a world point to screen pixels (for forgiving "tap near it" picking)
+  function screenPx(v){
+    var p=v.clone().project(camera),rect=canvas.getBoundingClientRect();
+    return {x:rect.left+(p.x*0.5+0.5)*rect.width,y:rect.top+(-p.y*0.5+0.5)*rect.height};
+  }
+  // carrying-pollen badge that follows the pointer
+  var pcur=document.getElementById("pollencursor");
+  function movePcur(x,y){pcur.style.left=x+"px";pcur.style.top=y+"px";}
+  function showCarry(x,y){pcur.classList.add("show");movePcur(x,y);canvas.style.cursor="none";}
+  function hideCarry(){pcur.classList.remove("show");if(mode==="pollinate")canvas.style.cursor="pointer";else canvas.style.cursor="";}
+  // arc from the front bloom's pollen to the other flower's stigma — shows WHERE the pollen goes
+  function buildGuide(){
+    var src=new THREE.Vector3(),tmp=new THREE.Vector3();
+    antherStamens.forEach(function(s){s.localToWorld(tmp.copy(s.userData.pollen.position));src.add(tmp);});
+    src.multiplyScalar(1/Math.max(1,antherStamens.length));
+    var ctrl=src.clone().lerp(secondStigma,0.5);ctrl.y+=0.09;
+    guideCurve=new THREE.QuadraticBezierCurve3(src.clone(),ctrl,secondStigma.clone());
+    guideDots.forEach(function(gd,i){gd.position.copy(guideCurve.getPoint((i+1)/(guideDots.length+1)));});
+  }
+  function enterPollinate(){
+    secondPistilObj=pickable.filter(function(o){return o.userData.key==="second_pistil";})[0];
+    pollenSprites.forEach(function(s){s.visible=true;});carrying=null;
+    if(selected){setEmissive(selected,false);selected=null;}
+    document.getElementById("card").classList.remove("show");
+    reassemble();if(seedSprite)seedSprite.visible=false;
+    var mid=frontCenter.clone().lerp(secondStigma,0.5);
+    var d=frontCenter.distanceTo(secondStigma);
+    var dir=camera.position.clone().sub(controls.target).normalize();
+    startTween(mid.clone().add(dir.multiplyScalar(Math.max(0.55,d*2.4))),mid);
+    buildGuide();
+    guideDots.forEach(function(gd){gd.visible=true;});
+    if(guideDot)guideDot.visible=true;
+    if(targetMarker)targetMarker.visible=true;
+    controls.enabled=false;                          // freeze rotation so kids can aim taps
+    canvas.style.cursor="pointer";
+    setHint('🐝 <b>Move the pollen!</b> Tap a glowing <b>yellow pollen</b> ball on the big flower.',7000);
+  }
+  function exitPollinate(){
+    pollenSprites.forEach(function(s){s.visible=false;s.scale.setScalar(s.userData.baseSize||0.075);});
+    carrying=null;hideCarry();
+    guideDots.forEach(function(gd){gd.visible=false;});
+    if(guideDot)guideDot.visible=false;
+    if(targetMarker)targetMarker.visible=false;
+    controls.enabled=true;canvas.style.cursor="";
+    if(secondPistilObj)setEmissive(secondPistilObj,false);
+  }
+  // pick pollen / drop on stigma. Forgiving: a tap NEAR the glowing ball or target counts.
+  function pollinatePick(px,py){
+    if(!carrying){
+      var hits=ray.intersectObjects(antherStamens,false);
+      var spr=ray.intersectObjects(pollenSprites,false);
+      var got=hits.length?hits[0].object:(spr.length?spr[0].object.parent:null);
+      if(!got&&px!=null){                             // fall back to nearest pollen ball on screen
+        var bd=80,wp=new THREE.Vector3();
+        pollenSprites.forEach(function(s){s.getWorldPosition(wp);var sp=screenPx(wp);
+          var d=Math.hypot(sp.x-px,sp.y-py);if(d<bd){bd=d;got=s.parent;}});
+      }
+      if(got){
+        carrying=got;
+        if(secondPistilObj)setEmissive(secondPistilObj,true);   // guide to target
+        showCarry(px!=null?px:screenPx(frontCenter).x,py!=null?py:screenPx(frontCenter).y);
+        setHint('Got the pollen! 🌼 Now tap the big <b>pink target</b> on the small flower — follow the dots.',8000);
+      }else{
+        setHint('Tap a glowing <b>yellow pollen</b> ball to pick it up.',5000);
+      }
+    }else{
+      var hit=secondPistilObj?ray.intersectObject(secondPistilObj,false):[];
+      var mk=targetMarker?ray.intersectObject(targetMarker,false):[];
+      var onTarget=hit.length||mk.length;
+      if(!onTarget&&px!=null){                        // fall back to tapping near the pink target
+        var sp2=screenPx(secondStigma);if(Math.hypot(sp2.x-px,sp2.y-py)<95)onTarget=true;
+      }
+      if(onTarget){startTransfer(carrying);}
+      else{setHint('Follow the dots — tap the big <b>pink target</b> on the small flower.',5000);}
+    }
+  }
+  function startTransfer(stamen){
+    var from=stamen.localToWorld(stamen.userData.pollen.position.clone());
+    transfer={from:from,to:secondStigma.clone(),start:performance.now(),dur:1500};
+    if(!flyer){flyer=makeSprite(POLLEN_TEX,0.045);scene.add(flyer);}
+    flyer.visible=true;flyer.position.copy(from);
+    carrying=null;hideCarry();pollenSprites.forEach(function(s){s.visible=false;});
+    guideDots.forEach(function(gd){gd.visible=false;});
+    if(guideDot)guideDot.visible=false;
+    if(targetMarker)targetMarker.visible=false;
+    if(secondPistilObj)setEmissive(secondPistilObj,false);
+    setHint('',1);
+  }
+  function stepTransfer(now){
+    if(!transfer)return;
+    var k=Math.min(1,(now-transfer.start)/transfer.dur);
+    var e=k<0.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    var p=transfer.from.clone().lerp(transfer.to,e);
+    p.y+=Math.sin(e*Math.PI)*0.13;   // arc up and over
+    flyer.position.copy(p);
+    if(k>=1){
+      flyer.visible=false;transfer=null;
+      seedSprite.visible=true;seedSprite.position.copy(secondOvary);
+      setHint('✓ The sticky <b>stigma</b> caught the pollen! A <b>seed can now form 🌱</b> in the other flower. That is how pollen travels from flower to flower to make new seeds.',10000);
+      mission.done("pollen");
+      setMode("explore");
+    }
+  }
+  function revealNectar(){
+    nectarSprite.material.opacity=1;
+    document.getElementById("pname").textContent="Nectar";
+    var chip=document.getElementById("prole");chip.textContent="Feeds pollinators";chip.style.background="#c9772e";
+    document.getElementById("pdesc").textContent="Sweet, sugary juice hidden deep at the base of the flower. It is the pollinator's reward — bees and hummingbirds come to drink it, and while they do, they brush past the pollen and carry it away.";
+    var card=document.getElementById("card");card.classList.remove("win");card.classList.add("show");
+    mission.done("nectar");
+  }
+
+  // ---------- mission ----------
+  var MISSION=[
+    {id:"explore",text:"Tap 3 parts of the front flower to learn what each one does"},
+    {id:"apart",  text:"Take the flower apart — drag a petal right off the flower"},
+    {id:"sort",   text:"Sort the parts: drag each one into its job bucket"},
+    {id:"nectar", text:"Find the nectar — the sweet glow deep in the middle"},
+    {id:"pollen", text:"Move the pollen from a stamen to the OTHER flower's stigma"}
+  ];
+  var missionDone={};
+  var mission={
+    render:function(){
+      var ul=document.getElementById("mission");ul.innerHTML="";
+      var firstOpen=true;
+      MISSION.forEach(function(m){
+        var done=!!missionDone[m.id];
+        var li=document.createElement("li");
+        li.className=done?"done":(firstOpen?"active":"");
+        if(!done)firstOpen=false;
+        li.innerHTML='<span class="box">'+(done?"✓":"")+'</span><span>'+m.text+'</span>';
+        ul.appendChild(li);
+      });
+      var n=Object.keys(missionDone).length;
+      document.getElementById("progbar").style.width=(100*n/MISSION.length)+"%";
+      if(n===MISSION.length)win();
+    },
+    done:function(id){if(!missionDone[id]){missionDone[id]=true;this.render();}}
+  };
+  mission.render();
+  function win(){
+    var card=document.getElementById("card");card.classList.add("show","win");
+    document.getElementById("pname").textContent="🌱 You did it!";
+    var chip=document.getElementById("prole");chip.textContent="Flower expert";chip.style.background="var(--accent)";
+    document.getElementById("pdesc").textContent="In this model, pollen moves from a stamen to another flower's sticky stigma. This shows pollination between flowers. A seed may form after later steps. Explain how the structures work together.";
+  }
+
+  // ---------- hint toast ----------
+  var hintT;
+  function setHint(html,ms){
+    var h=document.getElementById("hint");h.innerHTML=html;h.classList.add("show");
+    clearTimeout(hintT);if(ms)hintT=setTimeout(function(){h.classList.remove("show");},ms);
+  }
+
+  // ---------- loop ----------
+  function animate(now){
+    requestAnimationFrame(animate);
+    stepTween(now||0);
+    stepTransfer(now||0);
+    // ease each organ toward its position target, and shrink/grow if sorted away.
+    // Scale is relative to baseScale (the GLB's dequantization scale) — never absolute.
+    for(var i=0;i<pickable.length;i++){
+      var o=pickable[i];
+      if(o!==grab){var t=organTarget[o.name];if(t)o.position.lerp(t,0.2);}
+      var goal=organHidden[o.name]?0:1;
+      o.userData.sf+=(goal-o.userData.sf)*0.25;
+      var sf=o.userData.sf;
+      if(sf<0.02){o.visible=false;}else{o.visible=true;o.scale.copy(o.userData.baseScale).multiplyScalar(sf);}
+    }
+    if(nectarSprite&&nectarSprite.visible){nectarSprite.material.rotation+=0.01;}
+    if(mode==="pollinate"){                          // pulse the pollen + target, walk the trail dot
+      var pt=(now||0)/1000,pulse=1+0.28*Math.sin(pt*4.5);
+      for(var pi=0;pi<pollenSprites.length;pi++){var ps=pollenSprites[pi];ps.scale.setScalar((ps.userData.baseSize||0.075)*pulse);}
+      if(targetMarker&&targetMarker.visible){targetMarker.scale.setScalar(targetMarker.userData.baseSize*(1+0.22*Math.sin(pt*4.5+1)));targetMarker.material.rotation+=0.03;}
+      if(guideDot&&guideDot.visible&&guideCurve){guideDot.position.copy(guideCurve.getPoint((pt*0.55)%1));}
+    }
+    controls.update();
+    renderer.render(scene,camera);
+    window.__LILY_FRAMES__=(window.__LILY_FRAMES__||0)+1;
+  }
+  requestAnimationFrame(animate);
+  window.__LILY_API__={
+    select:select,
+    selectByName:function(n){for(var i=0;i<pickable.length;i++){if(pickable[i].name===n){select(pickable[i]);return true;}}return false;},
+    pickCount:function(){return pickable.length;},
+    nodes:function(){return pickable.map(function(o){return o.name;});},
+    // deterministic test hooks (raycast/drag paths are screen-based)
+    testEnterPollinate:function(){setMode("pollinate");},
+    testPickStamen:function(){carrying=antherStamens[0];if(secondPistilObj)setEmissive(secondPistilObj,true);return !!carrying;},
+    testDropStigma:function(){if(carrying){startTransfer(carrying);return true;}return false;},
+    testRevealNectar:function(){revealNectar();},
+    testEnterSort:function(){setMode("sort");},
+    testSortAll:function(){                          // drop every front organ into its correct bucket
+      pickable.forEach(function(o){
+        if(o.userData.key==="second_pistil"||organHidden[o.name])return;
+        var role=ORGAN[o.userData.key].role;
+        for(var i=0;i<BUCKETS.length;i++){if(BUCKETS[i].role===role){
+          var r=bucketEls[i].getBoundingClientRect();dropSort(o,r.left+r.width/2,r.top+r.height/2);break;}}
+      });
+      return sortedCount;
+    },
+    mode:function(){return mode;},
+    apart:function(){return apartState;},
+    screenOf:function(n){for(var i=0;i<pickable.length;i++){if(pickable[i].name===n){
+      var v=new THREE.Vector3();pickable[i].getWorldPosition(v);v.project(camera);
+      var r=canvas.getBoundingClientRect();
+      return {x:Math.round((v.x*0.5+0.5)*r.width+r.left),y:Math.round((-v.y*0.5+0.5)*r.height+r.top)};}}return null;},
+    posOf:function(n){for(var i=0;i<pickable.length;i++){if(pickable[i].name===n)
+      return pickable[i].position.toArray().map(function(x){return +x.toFixed(4);});}return null;},
+    hitAt:function(x,y){setRay(x,y);var h=ray.intersectObjects(pickable,false)[0];return h?h.object.name:null;},
+    controlsEnabled:function(){return controls.enabled;},
+    grabbed:function(){return grab?grab.name:null;},
+    debug:function(){var b=new THREE.Box3();pickable.forEach(function(o){b.expandByObject(o);});
+      var sz=b.getSize(new THREE.Vector3());
+      return {cam:camera.position.toArray().map(function(x){return +x.toFixed(3);}),
+        tgt:controls.target.toArray().map(function(x){return +x.toFixed(3);}),
+        fc:frontCenter.toArray().map(function(x){return +x.toFixed(3);}),
+        box:sz.toArray().map(function(x){return +x.toFixed(3);}),
+        dist:+camera.position.distanceTo(controls.target).toFixed(3),
+        camHome:camHome.pos.toArray().map(function(x){return +x.toFixed(3);})};},
+    isCarrying:function(){return !!carrying;},
+    pollenScreens:function(){var r=canvas.getBoundingClientRect();return pollenSprites.map(function(s){
+      var v=new THREE.Vector3();s.getWorldPosition(v);v.project(camera);
+      return {x:Math.round((v.x*0.5+0.5)*r.width+r.left),y:Math.round((-v.y*0.5+0.5)*r.height+r.top)};});},
+    targetScreen:function(){var v=secondStigma.clone().project(camera),r=canvas.getBoundingClientRect();
+      return {x:Math.round((v.x*0.5+0.5)*r.width+r.left),y:Math.round((-v.y*0.5+0.5)*r.height+r.top)};},
+    seedShown:function(){return seedSprite&&seedSprite.visible;},
+    missionState:function(){return Object.assign({},missionDone);},
+    // pure render-cost benchmark (independent of rAF throttling in automation)
+    perfTest:function(n){n=n||90;var t0=performance.now();
+      for(var i=0;i<n;i++){renderer.render(scene,camera);}
+      var dt=performance.now()-t0;return {frames:n,msPerFrame:+(dt/n).toFixed(2),estFps:Math.round(1000/(dt/n))};}
+  };
+})();
+</script>
+</body>
+</html>

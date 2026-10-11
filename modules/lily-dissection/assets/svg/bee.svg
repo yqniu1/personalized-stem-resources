@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1600" viewBox="0 0 1600 1600"><g>
+<defs>
+ <linearGradient id="beeAbd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c martin"></stop></linearGradient>
+ <radialGradient id="beeThx" cx="0.4" cy="0.35" r="0.8"><stop offset="0" stop-color="#5a4d3a"></stop><stop offset="1" stop-color="#2b2419"></stop></radialGradient>
+ <radialGradient id="beeYel" cx="0.4" cy="0.3" r="0.9"><stop offset="0" stop-color="#ffd45e"></stop><stop offset="0.7" stop-color="#f2b333"></stop><stop offset="1" stop-color="#d9922020"></stop></radialGradient>
+ <linearGradient id="beeWing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eaf4fb" stop-opacity="0.85"></stop><stop offset="1" stop-color="#bcd6e8" stop-opacity="0.45"></stop></linearGradient>
+ <filter id="beeBlur"><feGaussianBlur stdDeviation="2"></feGaussianBlur></filter>
+</defs>
+
+<g stroke="#241d12" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.9">
+ <path d="M 820 900 C 810 960, 800 990, 780 1015"></path>
+ <path d="M 880 905 C 878 965, 872 1000, 858 1028"></path>
+ <path d="M 950 900 C 956 958, 958 992, 950 1018"></path>
+</g>
+
+<g opacity="0.7" filter="url(#beeBlur)">
+ <ellipse cx="800" cy="700" rx="150" ry="70" transform="rotate(-32 800 700)" fill="url(#beeWing)" stroke="#9fbcd0" stroke-width="2"></ellipse>
+ <ellipse cx="900" cy="710" rx="130" ry="58" transform="rotate(-14 900 710)" fill="url(#beeWing)" stroke="#9fbcd0" stroke-width="2"></ellipse>
+</g>
+
+<g>
+ <ellipse cx="770" cy="835" rx="185" ry="118" fill="url(#beeYel)"></ellipse>
+ <path d="M 690 835 m 0 -110 a 1 1 0 0 0 0 220" fill="none"></path>
+ <g fill="#241d12">
+  <path d="M 640 748 C 700 726, 700 944, 640 922 C 612 880, 612 790, 640 748 Z" opacity="0.92"></path>
+  <path d="M 726 730 C 752 726, 752 944, 726 940 L 700 940 C 726 900, 726 770, 700 730 Z" opacity="0.92"></path>
+  <path d="M 812 736 C 836 742, 836 928, 812 934 L 792 930 C 812 890, 812 780, 792 740 Z" opacity="0.92"></path>
+ </g>
+ <path d="M 592 835 C 604 812, 604 858, 592 835 Z"></path>
+ <path d="M 588 835 L 556 820 L 560 850 Z" fill="#241d12"></path>
+ <ellipse cx="820" cy="800" rx="120" ry="40" fill="#fff" opacity="0.14" filter="url(#beeBlur)"></ellipse>
+</g>
+
+<ellipse cx="915" cy="828" rx="86" ry="92" fill="url(#beeThx)"></ellipse>
+<ellipse cx="898" cy="805" rx="60" ry="46" fill="#6b5a41" opacity="0.4" filter="url(#beeBlur)"></ellipse>
+
+<circle cx="1010" cy="828" r="60" fill="#241d12"></circle>
+<ellipse cx="1035" cy="812" rx="20" ry="30" fill="#0c0a06"></ellipse>
+<circle cx="1030" cy="806" r="6" fill="#fff" opacity="0.5"></circle>
+
+<g stroke="#241d12" stroke-width="6" fill="none" stroke-linecap="round">
+ <path d="M 1040 782 C 1075 745, 1090 735, 1108 736"></path>
+ <path d="M 1050 800 C 1088 775, 1104 772, 1122 776"></path>
+</g>
+<circle cx="1108" cy="736" r="7" fill="#241d12"></circle><circle cx="1122" cy="776" r="7" fill="#241d12"></circle>
+</g></svg>

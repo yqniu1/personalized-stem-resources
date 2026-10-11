@@ -1,0 +1,491 @@
+{
+  "name": "Lily Dissection Lab — asset pack",
+  "cultivar": "Pink Oriental 'Stargazer' lily",
+  "builtFrom": "Matched to user reference photos: white tepal margins, deep magenta-raspberry center, green throat-star, raised maroon teardrop spots, rust-brown anthers, pale green pistil.",
+  "canvas": {
+    "width": 1600,
+    "height": 1600,
+    "center": [
+      800,
+      800
+    ]
+  },
+  "usage": "Each scene shares one 1600×1600 canvas. Stack a scene's layers at (0,0) to rebuild it. To dissect, translate a layer outward along explodeVector. No baked cast shadows — add soft drop-shadows in code so they track each part.",
+  "scenes": {
+    "bloomFace": {
+      "description": "Face-on open bloom — the dissection activity. 13 draggable layers.",
+      "method": "full-canvas overlay",
+      "bloomDiameter": 1410,
+      "renderOrder": [
+        "sepal-1",
+        "sepal-2",
+        "sepal-3",
+        "petal-1",
+        "petal-2",
+        "petal-3",
+        "stamen-1",
+        "stamen-2",
+        "stamen-3",
+        "stamen-4",
+        "stamen-5",
+        "stamen-6",
+        "pistil"
+      ],
+      "parts": [
+        {
+          "id": "petal-1",
+          "file": "petal-1.png",
+          "svg": "svg/petal-1.svg",
+          "group": "attraction",
+          "role": "Petal (inner tepal)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 0,
+          "explodeVector": [
+            0,
+            -1
+          ]
+        },
+        {
+          "id": "petal-2",
+          "file": "petal-2.png",
+          "svg": "svg/petal-2.svg",
+          "group": "attraction",
+          "role": "Petal (inner tepal)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 120,
+          "explodeVector": [
+            0.866,
+            0.5
+          ]
+        },
+        {
+          "id": "petal-3",
+          "file": "petal-3.png",
+          "svg": "svg/petal-3.svg",
+          "group": "attraction",
+          "role": "Petal (inner tepal)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 240,
+          "explodeVector": [
+            -0.866,
+            0.5
+          ]
+        },
+        {
+          "id": "sepal-1",
+          "file": "sepal-1.png",
+          "svg": "svg/sepal-1.svg",
+          "group": "protection",
+          "role": "Sepal (outer tepal)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 60,
+          "explodeVector": [
+            0.866,
+            -0.5
+          ]
+        },
+        {
+          "id": "sepal-2",
+          "file": "sepal-2.png",
+          "svg": "svg/sepal-2.svg",
+          "group": "protection",
+          "role": "Sepal (outer tepal)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 180,
+          "explodeVector": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "sepal-3",
+          "file": "sepal-3.png",
+          "svg": "svg/sepal-3.svg",
+          "group": "protection",
+          "role": "Sepal (outer tepal)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 300,
+          "explodeVector": [
+            -0.866,
+            -0.5
+          ]
+        },
+        {
+          "id": "stamen-1",
+          "file": "stamen-1.png",
+          "svg": "svg/stamen-1.svg",
+          "group": "reproduction",
+          "role": "Stamen (filament + anther)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 30,
+          "explodeVector": [
+            0.5,
+            -0.866
+          ],
+          "referenceSplit": {
+            "anther": "anther.png",
+            "filament": "filament.png"
+          }
+        },
+        {
+          "id": "stamen-2",
+          "file": "stamen-2.png",
+          "svg": "svg/stamen-2.svg",
+          "group": "reproduction",
+          "role": "Stamen (filament + anther)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 90,
+          "explodeVector": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "stamen-3",
+          "file": "stamen-3.png",
+          "svg": "svg/stamen-3.svg",
+          "group": "reproduction",
+          "role": "Stamen (filament + anther)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 150,
+          "explodeVector": [
+            0.5,
+            0.866
+          ]
+        },
+        {
+          "id": "stamen-4",
+          "file": "stamen-4.png",
+          "svg": "svg/stamen-4.svg",
+          "group": "reproduction",
+          "role": "Stamen (filament + anther)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 210,
+          "explodeVector": [
+            -0.5,
+            0.866
+          ]
+        },
+        {
+          "id": "stamen-5",
+          "file": "stamen-5.png",
+          "svg": "svg/stamen-5.svg",
+          "group": "reproduction",
+          "role": "Stamen (filament + anther)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 270,
+          "explodeVector": [
+            -1,
+            0
+          ]
+        },
+        {
+          "id": "stamen-6",
+          "file": "stamen-6.png",
+          "svg": "svg/stamen-6.svg",
+          "group": "reproduction",
+          "role": "Stamen (filament + anther)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 330,
+          "explodeVector": [
+            -0.5,
+            -0.866
+          ]
+        },
+        {
+          "id": "pistil",
+          "file": "pistil.png",
+          "svg": "svg/pistil.svg",
+          "group": "reproduction",
+          "role": "Pistil (stigma + style + ovary)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeAngleDeg": 0,
+          "explodeVector": [
+            0,
+            -1
+          ],
+          "subLayers": {
+            "stigma": "stigma.png",
+            "style": "style.png",
+            "ovary": "ovary.png"
+          },
+          "subregions": {
+            "stigma": [
+              753,
+              298,
+              94,
+              78
+            ],
+            "style": [
+              786,
+              338,
+              28,
+              324
+            ],
+            "ovary": [
+              774,
+              662,
+              52,
+              138
+            ]
+          }
+        }
+      ],
+      "references": {
+        "flower-whole": {
+          "file": "flower-whole.png",
+          "svg": "svg/flower-whole.svg",
+          "note": "Intact bloom (all layers merged) — before/reference state. Not a draggable layer."
+        },
+        "anther": {
+          "file": "anther.png",
+          "svg": "svg/anther.svg",
+          "note": "Sub-part of stamen-1; overlays exactly onto stamen-1."
+        },
+        "filament": {
+          "file": "filament.png",
+          "svg": "svg/filament.svg",
+          "note": "Sub-part of stamen-1."
+        },
+        "stigma": {
+          "file": "stigma.png",
+          "svg": "svg/stigma.svg",
+          "note": "Top sub-part of pistil."
+        },
+        "style": {
+          "file": "style.png",
+          "svg": "svg/style.svg",
+          "note": "Stalk sub-part of pistil."
+        },
+        "ovary": {
+          "file": "ovary.png",
+          "svg": "svg/ovary.svg",
+          "note": "Base sub-part of pistil; holds the ovules."
+        }
+      }
+    },
+    "plantSide": {
+      "description": "Side-view whole plant — separate camera. Layers stack at (0,0) to form the plant; not centred on a radial point.",
+      "method": "full-canvas overlay",
+      "renderOrder": [
+        "roots",
+        "stem",
+        "leaf-1",
+        "leaf-2",
+        "leaf-3",
+        "leaf-4",
+        "bloom-side"
+      ],
+      "parts": [
+        {
+          "id": "roots",
+          "file": "roots.png",
+          "svg": "svg/roots.svg",
+          "group": "plant",
+          "role": "Bulb + roots",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeVector": [
+            0,
+            1
+          ]
+        },
+        {
+          "id": "stem",
+          "file": "stem.png",
+          "svg": "svg/stem.svg",
+          "group": "plant",
+          "role": "Stem",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeVector": [
+            0,
+            0
+          ]
+        },
+        {
+          "id": "leaf-1",
+          "file": "leaf-1.png",
+          "svg": "svg/leaf-1.svg",
+          "group": "plant",
+          "role": "Leaf",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeVector": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "leaf-2",
+          "file": "leaf-2.png",
+          "svg": "svg/leaf-2.svg",
+          "group": "plant",
+          "role": "Leaf",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeVector": [
+            -1,
+            0
+          ]
+        },
+        {
+          "id": "leaf-3",
+          "file": "leaf-3.png",
+          "svg": "svg/leaf-3.svg",
+          "group": "plant",
+          "role": "Leaf",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeVector": [
+            1,
+            0
+          ]
+        },
+        {
+          "id": "leaf-4",
+          "file": "leaf-4.png",
+          "svg": "svg/leaf-4.svg",
+          "group": "plant",
+          "role": "Leaf",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeVector": [
+            -1,
+            0
+          ]
+        },
+        {
+          "id": "bloom-side",
+          "file": "bloom-side.png",
+          "svg": "svg/bloom-side.svg",
+          "group": "plant",
+          "role": "Flower (side profile)",
+          "anchor": [
+            800,
+            800
+          ],
+          "explodeVector": [
+            0,
+            -1
+          ]
+        }
+      ],
+      "references": {
+        "plant-whole": {
+          "file": "plant-whole.png",
+          "svg": "svg/plant-whole.svg",
+          "note": "Intact plant (all layers merged)."
+        }
+      }
+    }
+  },
+  "vocabulary": [
+    {
+      "term": "Petal",
+      "teaches": "petal-1",
+      "hint": "colourful inner parts that attract pollinators"
+    },
+    {
+      "term": "Sepal",
+      "teaches": "sepal-1",
+      "hint": "outer parts that protect the bud"
+    },
+    {
+      "term": "Stamen",
+      "teaches": "stamen-1",
+      "hint": "the male part = filament + anther"
+    },
+    {
+      "term": "Anther",
+      "teaches": "anther",
+      "hint": "makes the pollen"
+    },
+    {
+      "term": "Filament",
+      "teaches": "filament",
+      "hint": "stalk that holds up the anther"
+    },
+    {
+      "term": "Stigma",
+      "teaches": "stigma",
+      "hint": "sticky top that catches pollen"
+    },
+    {
+      "term": "Style",
+      "teaches": "style",
+      "hint": "tube the pollen travels down"
+    },
+    {
+      "term": "Ovary",
+      "teaches": "ovary",
+      "hint": "holds the ovules that become seeds"
+    },
+    {
+      "term": "Stem",
+      "teaches": "stem",
+      "hint": "holds the plant up and carries water"
+    },
+    {
+      "term": "Leaf",
+      "teaches": "leaf-1",
+      "hint": "makes food from sunlight"
+    },
+    {
+      "term": "Roots",
+      "teaches": "roots",
+      "hint": "bulb + roots anchor the plant and drink water"
+    }
+  ]
+}

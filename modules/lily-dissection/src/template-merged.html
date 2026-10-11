@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<!--
+  Lily Dissection Lab — offline merged launcher with purchased model data.
+  Edit src/template-merged.html and the 2-D / 3-D sources, then run:
+  python build/build.py
+  (which consumes the already-built index-2d.html and index-3d.html).
+
+  How it works: the two standalone labs are embedded as strings and each runs in its
+  own <iframe srcdoc>, so their identical element ids and CSS classes never collide.
+  A tiny router detects WebGL: it opens the 3-D lab when the device supports it and
+  lets the user switch to the 2-D lab at any time; on a browser without WebGL it opens
+  the 2-D lab and disables the 3-D button. Fully self-contained and offline — the 3-D
+  assets are already base64-inlined, so they load fine inside a srcdoc iframe.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lily Dissection — How a Flower Makes Seeds</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#243240;display:flex;flex-direction:column;height:100vh;overflow:hidden;
+  }
+  #switchbar{
+    flex:none;display:flex;align-items:center;gap:12px;padding:7px 14px;
+    background:#243240;color:#fff;box-shadow:0 2px 8px rgba(10,20,30,.35);z-index:10;
+  }
+  #switchbar .brand{font-weight:700;font-size:.95rem;letter-spacing:.2px;white-space:nowrap}
+  #note{font-size:.8rem;color:#f2c98a;margin-left:4px}
+  #seg{margin-left:auto;display:inline-flex;background:rgba(255,255,255,.12);border-radius:9px;padding:3px;flex:none}
+  #seg button{
+    border:0;background:transparent;color:#cdd7e0;font:inherit;font-size:.86rem;font-weight:600;
+    padding:6px 14px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.15s;
+  }
+  #seg button.active{background:#fff;color:#243240}
+  #seg button:not(.active):not(:disabled):hover{color:#fff;background:rgba(255,255,255,.10)}
+  #seg button:disabled{opacity:.4;cursor:not-allowed}
+  #seg button:focus-visible{outline:3px solid #ffb300;outline-offset:2px}
+  #host{flex:1 1 auto;position:relative;min-height:0;background:#e7eef5}
+  #host iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none}
+</style>
+</head>
+<body>
+  <div id="switchbar">
+    <span class="brand">Lily Dissection Lab</span>
+    <span id="note" role="status"></span>
+    <span id="seg" role="group" aria-label="Choose 3-D or 2-D view">
+      <button id="seg3d" type="button">🌐 3-D flower</button>
+      <button id="seg2d" type="button">🖼️ 2-D flower</button>
+    </span>
+  </div>
+  <div id="host"></div>
+<script>
+(function(){
+  "use strict";
+  var APP2D={{APP2D}};
+  var APP3D={{APP3D}};
+  var host=document.getElementById("host");
+  var b3=document.getElementById("seg3d");
+  var b2=document.getElementById("seg2d");
+  var note=document.getElementById("note");
+  var frames={};
+
+  function webglOK(){
+    try{
+      var c=document.createElement("canvas");
+      return !!(window.WebGLRenderingContext && (c.getContext("webgl2")||c.getContext("webgl")));
+    }catch(e){ return false; }
+  }
+  // Build the iframe for a view the first time it is shown (lazy — the heavy 3-D
+  // app never boots unless the user is actually looking at it).
+  function ensure(which){
+    if(frames[which]) return frames[which];
+    var f=document.createElement("iframe");
+    f.title=(which==="3d")?"3-D lily lab":"2-D lily lab";
+    f.setAttribute("srcdoc",(which==="3d")?APP3D:APP2D);
+    host.appendChild(f);
+    frames[which]=f;
+    return f;
+  }
+  function show(which){
+    if(which==="3d" && !has3d) return;
+    ensure(which).style.display="block";
+    for(var k in frames){ if(k!==which) frames[k].style.display="none"; }
+    b3.classList.toggle("active", which==="3d");
+    b2.classList.toggle("active", which==="2d");
+  }
+
+  var has3d=webglOK();
+  if(!has3d){
+    b3.disabled=true;
+    b3.title="3-D needs WebGL, which this browser can’t use";
+    note.textContent="3-D needs WebGL — showing the 2-D lab.";
+  }
+  b3.addEventListener("click",function(){ note.textContent=""; show("3d"); });
+  b2.addEventListener("click",function(){ if(has3d) note.textContent=""; show("2d"); });
+
+  show(has3d ? "3d" : "2d");
+})();
+</script>
+</body>
+</html>

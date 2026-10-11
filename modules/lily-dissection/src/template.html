@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<!--
+  Lily Dissection Lab — a supplement for OpenSciEd Grade 4, Lesson 13 (NGSS 4-LS1-1).
+  GENERATED FILE. Do not hand-edit index-2d.html — edit src/template.html and the
+  assets/svg/*.svg art, then run:  python build/assemble.py
+  Fully self-contained: single file, no network, opens by double-click.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lily Dissection — How a Flower Makes Seeds</title>
+<style>
+  :root{
+    --pollen:#c9772e;    /* makes pollen  (anther)  */
+    --catch:#b2367a;     /* catches pollen (stigma) */
+    --seeds:#2e9e5b;     /* makes seeds   (ovary)   */
+    --advert:#d6478f;    /* draws pollinators (petal)*/
+    --protect:#3b7dd8;   /* protects the bud (sepal)*/
+    --ink:#243240;
+    --muted:#5d6b78;
+    --line:#d8dfe6;
+    --panel:#ffffff;
+    --bg1:#eef4f1;
+    --bg2:#e7eef5;
+    --accent:#3f7d5c;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    min-height:100vh;
+    line-height:1.5;
+  }
+  .app{max-width:1180px;margin:0 auto;padding:18px 18px 40px}
+  header h1{margin:0 0 2px;font-size:1.5rem;letter-spacing:.2px}
+  header p{margin:0 0 14px;color:var(--muted);font-size:.95rem}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+  button.tool{
+    border:1px solid var(--line);background:var(--panel);color:var(--ink);
+    padding:8px 13px;border-radius:9px;font-size:.9rem;cursor:pointer;
+    display:inline-flex;align-items:center;gap:7px;transition:.15s;
+    box-shadow:0 1px 2px rgba(20,40,60,.05);
+  }
+  button.tool:hover{border-color:#b9c4cd;transform:translateY(-1px)}
+  button.tool:focus-visible{outline:3px solid #ffb300;outline-offset:2px}
+  button.tool.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  button.tool .dot{width:9px;height:9px;border-radius:50%;background:#c3ccd4}
+  button.tool.active .dot{background:#cdeacc}
+
+  .main{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start}
+  @media (max-width:820px){.main{grid-template-columns:1fr}}
+
+  .stage{
+    background:radial-gradient(circle at 50% 40%,#ffffff, #eef4ef 60%, #dfe9e2);
+    border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    box-shadow:0 6px 24px rgba(30,60,45,.08);
+    position:relative;
+  }
+  svg#lily{display:block;width:100%;height:auto;touch-action:none;cursor:default}
+  svg#lily.pollinate{cursor:none}
+  .hint-strip{
+    position:absolute;left:0;right:0;bottom:0;padding:8px 14px;font-size:.9rem;
+    background:rgba(255,255,255,.9);border-top:1px solid var(--line);
+    color:var(--muted);backdrop-filter:blur(2px);min-height:20px;
+    pointer-events:none;
+  }
+  .hint-strip b{color:var(--ink)}
+
+  .part{cursor:grab}
+  .part.dragging{cursor:grabbing}
+  .part.selected{filter:drop-shadow(0 0 7px #ffcf33) drop-shadow(0 0 3px #ffb300)}
+  svg#lily.pollinate .part{cursor:none}
+
+  .label{pointer-events:none;display:none}
+  svg.show-labels .label{display:block}
+  .label text{font-size:30px;font-weight:700;fill:var(--ink);paint-order:stroke;
+    stroke:#fff;stroke-width:7px;stroke-linejoin:round}
+  .label line{stroke:#7a8791;stroke-width:2.5;stroke-dasharray:6 6}
+
+  #pollenLayer,#beak,#seedFx{pointer-events:none}
+  #pollenLayer{display:none}
+  svg.pollinate #pollenLayer{display:block}
+  .anther-glow{fill:#ffd766;opacity:.9}
+  .pollen-pulse{animation:pp 1.3s ease-in-out infinite}
+  @keyframes pp{0%,100%{opacity:.55}50%{opacity:1}}
+  #beak{display:none}
+  svg.pollinate #beak{display:block}
+
+  /* pollinate guide: pink bullseye target on the stigma + breadcrumb trail from an anther */
+  #guideLayer{display:none;pointer-events:none}
+  svg.pollinate #guideLayer{display:block}
+  .reticle-spin{transform-box:fill-box;transform-origin:center;animation:retspin 7s linear infinite}
+  .reticle-pulse{transform-box:fill-box;transform-origin:center;animation:retpulse 1.4s ease-in-out infinite}
+  @keyframes retspin{to{transform:rotate(360deg)}}
+  @keyframes retpulse{0%,100%{transform:scale(.88);opacity:.8}50%{transform:scale(1.1);opacity:1}}
+  .crumb{animation:pp 1.3s ease-in-out infinite}
+
+  .shake{animation:shk .4s}
+  @keyframes shk{0%,100%{}20%{transform:translateX(-6px)}40%{transform:translateX(7px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+
+  .side{display:flex;flex-direction:column;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;
+    box-shadow:0 2px 10px rgba(30,60,45,.05)}
+  .card h2{margin:0 0 8px;font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+  #info .partname{font-size:1.3rem;font-weight:700;margin:0 0 6px}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:.76rem;font-weight:600;
+    padding:3px 9px;border-radius:20px;color:#fff;margin-bottom:10px}
+  .chip.make-pollen{background:var(--pollen)}
+  .chip.catches-pollen{background:var(--catch)}
+  .chip.make-seeds{background:var(--seeds)}
+  .chip.advertise{background:var(--advert)}
+  .chip.protect{background:var(--protect)}
+  #info .desc{margin:0;color:#33424f}
+  #info .placeholder{color:var(--muted);font-style:italic}
+
+  .mission{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+  .mission li{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;color:#3a4854}
+  .mission .box{flex:none;width:20px;height:20px;border-radius:6px;border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;margin-top:1px;transition:.2s}
+  .mission li.done{color:var(--muted)}
+  .mission li.done .box{background:var(--seeds);border-color:var(--seeds)}
+  .mission li.active{color:var(--ink);font-weight:600}
+  .mission li.active .box{border-color:var(--accent);box-shadow:0 0 0 3px rgba(63,125,92,.15)}
+  .progress{height:8px;background:#eef2f5;border-radius:6px;overflow:hidden;margin-top:12px}
+  .progress > span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--seeds),var(--advert));transition:width .3s}
+
+
+  footer{margin-top:22px;color:var(--muted);font-size:.8rem;text-align:center}
+  .win{background:linear-gradient(90deg,#e8f8ee,#fde9f2);border-color:#bfe6cd}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Lily Dissection Lab</h1>
+    <p>Take a flower apart to find out how its parts work together to move <b>pollen</b> and make <b>seeds</b>.</p>
+  </header>
+
+  <div class="toolbar" id="toolbar">
+    <button class="tool" id="btnLabels"><span class="dot"></span>Show part names</button>
+    <button class="tool" id="btnSeparate">✥ Take apart</button>
+    <button class="tool" id="btnPollinate"><span class="dot"></span>Move the pollen</button>
+    <button class="tool" id="btnReset">↺ Put back together</button>
+  </div>
+
+  <div class="main">
+    <div class="stage">
+      <svg id="lily" viewBox="-250 -250 2100 2100" role="img" aria-label="Interactive lily flower you can take apart">
+        <defs>
+          <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#241a2a" flood-opacity="0.26"/>
+          </filter>
+          <radialGradient id="nectarGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffe37a" stop-opacity="0.95"/>
+            <stop offset="60%" stop-color="#ffcf4d" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#ffcf4d" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <g id="flower" filter="url(#soft)">
+{{PARTS}}
+        </g>
+        <g id="nectarLayer"></g>
+        <g id="guideLayer"></g>
+        <g id="pollenLayer"></g>
+        <g id="seedFx"></g>
+        <g id="labelLayer"></g>
+        <g id="beak">{{BEAK}}</g>
+      </svg>
+      <div class="hint-strip" id="hint">Tip: <b>click</b> a part to learn its job. <b>Drag</b> a part to pull it off the flower.</div>
+    </div>
+
+    <div class="side">
+      <div class="card" id="info">
+        <h2>Selected part</h2>
+        <p class="partname placeholder">Nothing selected yet</p>
+        <p class="desc placeholder">Click any part of the flower to see what it does.</p>
+      </div>
+
+      <div class="card">
+        <h2>Your mission</h2>
+        <ul class="mission" id="mission"></ul>
+        <div class="progress"><span id="bar"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Stylised drawing of a pink Oriental lily (<i>Lilium</i> 'Stargazer'). Opens offline.<br>
+    Independent, AI-assisted supplement informed by <a href="https://openscied.org/">OpenSciEd</a> Grade 4 Unit 4.4, Lesson 13. No publisher endorsement.
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SVGNS="http://www.w3.org/2000/svg";
+  var svg=document.getElementById("lily");
+  var flower=document.getElementById("flower");
+  var pollenLayer=document.getElementById("pollenLayer");
+  var guideLayer=document.getElementById("guideLayer");
+  var nectarLayer=document.getElementById("nectarLayer");
+  var seedFx=document.getElementById("seedFx");
+  var labelLayer=document.getElementById("labelLayer");
+  var beak=document.getElementById("beak");
+  var hint=document.getElementById("hint");
+  var CX=800, CY=800;
+
+  function el(tag,attrs,parent){
+    var n=document.createElementNS(SVGNS,tag);
+    if(attrs) for(var k in attrs) n.setAttribute(k,attrs[k]);
+    if(parent) parent.appendChild(n);
+    return n;
+  }
+
+  // ---- GEOMETRY (canvas is 1600x1600, centre 800,800) — tune to the art ----
+  var R_ANTHER=430;                       // radius of anther tips from centre
+  var STIGMA={x:800,y:337,r:95};          // pollen drop target (pistil stigma subregion centre)
+  var PICK_R=150;                         // forgiving anther pick radius (SVG units — a tap NEAR a tip counts)
+  var DROP_R=140;                         // forgiving stigma drop radius (SVG units — must exceed the visible reticle)
+  var OVARY={x:800,y:731};                // where the "a seed can form" cue appears
+  var NECTAR={x:800,y:770,r:150};         // deep-centre nectar zone
+  var PISTIL_SUB={ stigma:[753,298,94,78], style:[786,338,28,324], ovary:[774,662,52,138] };
+
+  // ---- ROLE metadata (Lesson 13 pollination frame) ----
+  var ROLE={
+    "make-pollen":{name:"Makes the pollen",cls:"make-pollen"},
+    "catches-pollen":{name:"Catches the pollen",cls:"catches-pollen"},
+    "make-seeds":{name:"Makes the seeds",cls:"make-seeds"},
+    "advertise":{name:"Draws pollinators in",cls:"advertise"},
+    "protect":{name:"Protects the bud",cls:"protect"}
+  };
+
+  // ---- part info (function-first, Grade-4, names secondary; no "tepal"/"carpel") ----
+  var INFO={
+    petal:{name:"Petal",role:"advertise",
+      desc:"Big and brightly coloured so bees and hummingbirds can spot the flower. Deep at its base is the sweet nectar that feeds them."},
+    sepal:{name:"Sepal",role:"protect",
+      desc:"Wraps around the flower and keeps it safe while it is still a closed bud. On a lily it looks a lot like a petal."},
+    stamen:{name:"Stamen",role:"make-pollen",
+      desc:"The part that makes pollen. The tip (the anther) is loaded with yellow pollen; the thin stalk (the filament) holds it up high so a pollinator brushes past it."},
+    anther:{name:"Anther",role:"make-pollen",
+      desc:"The tip of the stamen. It makes the yellow pollen and holds it up where a pollinator will touch it."},
+    filament:{name:"Filament",role:"make-pollen",
+      desc:"The thin stalk that holds the anther up high, so its pollen is easy to pick up."},
+    stigma:{name:"Stigma",role:"catches-pollen",
+      desc:"The sticky tip in the middle of the flower. It catches pollen carried from an anther, either within a flower or between flowers."},
+    style:{name:"Style",role:"make-seeds",
+      desc:"Connects the sticky stigma to the ovary below. After pollen lands on the stigma, a tiny pollen tube can grow through the style."},
+    ovary:{name:"Ovary",role:"make-seeds",
+      desc:"The round base in the middle. Seeds can develop here after pollination and later steps."},
+    pistil:{name:"Pistil",role:"make-seeds",
+      desc:"The whole middle part: a sticky stigma on top that catches pollen, a style tube, and an ovary at the base where seeds form."}
+  };
+
+  // ---- collect parts from the inlined SVG ----
+  var parts=[];
+  Array.prototype.forEach.call(flower.querySelectorAll(".part"),function(g){
+    var ex=(g.getAttribute("data-ex")||"0,0").split(",").map(Number);
+    var p={id:g.getAttribute("data-id"),role:g.getAttribute("data-role"),el:g,ex:{x:ex[0],y:ex[1]}};
+    g.__tx=0; g.__ty=0;
+    parts.push(p);
+  });
+  function partById(id){for(var i=0;i<parts.length;i++)if(parts[i].id===id)return parts[i];return null;}
+  function applyPos(g){g.setAttribute("transform","translate("+g.__tx+","+g.__ty+")");}
+
+  // ---- pollen grains + anther glow drawn on each stamen tip ----
+  var stamens=parts.filter(function(p){return p.id.indexOf("stamen")===0;});
+  stamens.forEach(function(p){
+    var ax=CX+p.ex.x*R_ANTHER, ay=CY+p.ex.y*R_ANTHER;
+    var g=el("g",{"class":"pollen-pulse","data-ant":p.id},pollenLayer);
+    el("circle",{cx:ax,cy:ay,r:34,"class":"anther-glow"},g);
+    [[0,0,10],[-14,-9,7],[15,-6,7],[-8,13,6],[12,11,6],[0,-16,5]].forEach(function(d){
+      el("circle",{cx:ax+d[0],cy:ay+d[1],r:d[2],fill:"#e0902f",opacity:.95},g);
+    });
+  });
+
+  // ---- name labels (optional, function is primary) ----
+  var LABELS=[
+    {k:"petal", id:"petal-1", r:760},
+    {k:"sepal", id:"sepal-2", r:760},
+    {k:"stamen",id:"stamen-2",r:R_ANTHER, tag:"Anther"},
+    {k:"stigma",at:{x:STIGMA.x,y:STIGMA.y-40}, side:1, tag:"Stigma"},
+    {k:"ovary", at:{x:OVARY.x,y:OVARY.y+30}, side:1, tag:"Ovary"}
+  ];
+  LABELS.forEach(function(L){
+    var px,py;
+    if(L.at){px=L.at.x;py=L.at.y;}
+    else{var p=partById(L.id); px=CX+p.ex.x*L.r; py=CY+p.ex.y*L.r;}
+    var tx=px+(px>=CX?150:-150), ty=py;
+    var g=el("g",{"class":"label"},labelLayer);
+    el("line",{x1:px,y1:py,x2:tx,y2:ty},g);
+    var t=el("text",{x:tx+(px>=CX?8:-8),y:ty+10,"text-anchor":px>=CX?"start":"end"},g);
+    t.textContent=L.tag||INFO[L.k].name;
+  });
+
+  // =================== helpers ===================
+  function svgPoint(evt){
+    var pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  function dist(ax,ay,bx,by){var dx=ax-bx,dy=ay-by;return Math.sqrt(dx*dx+dy*dy);}
+  function boxHas(box,x,y){return x>=box[0]&&x<=box[0]+box[2]&&y>=box[1]&&y<=box[1]+box[3];}
+  function setHint(html){hint.innerHTML=html;}
+
+  // which teaching key does a click on this part map to?
+  function keyForClick(p,localX,localY){
+    if(p.id.indexOf("petal")===0)return "petal";
+    if(p.id.indexOf("sepal")===0)return "sepal";
+    if(p.id.indexOf("stamen")===0)return "stamen";
+    // pistil: use sub-region under the click point
+    if(boxHas(PISTIL_SUB.stigma,localX,localY))return "stigma";
+    if(boxHas(PISTIL_SUB.ovary,localX,localY))return "ovary";
+    if(boxHas(PISTIL_SUB.style,localX,localY))return "style";
+    return "pistil";
+  }
+
+  // =================== info panel ===================
+  var state={mode:"explore", selected:null};
+  var explored={};
+  function setInfo(k){
+    var d=INFO[k]; if(!d)return;
+    var r=ROLE[d.role];
+    var card=document.getElementById("info");
+    var pn=card.querySelector(".partname"); pn.className="partname"; pn.textContent=d.name;
+    var desc=card.querySelector(".desc"); desc.className="desc"; desc.textContent=d.desc;
+    var old=card.querySelector(".chip"); if(old)old.remove();
+    var chip=document.createElement("span");
+    chip.className="chip "+r.cls; chip.textContent=r.name;
+    pn.insertAdjacentElement("afterend",chip);
+    explored[k]=true;
+    if(Object.keys(explored).length>=3) mission.done("explore");
+  }
+  function selectPart(g){
+    if(state.selected)state.selected.classList.remove("selected");
+    state.selected=g; g.classList.add("selected");
+  }
+
+  // =================== mission tracker ===================
+  var MISSION=[
+    {id:"explore",text:"Click 3 parts to find out what each one does"},
+    {id:"apart",  text:"Take the flower apart to see inside"},
+    {id:"nectar", text:"Find the nectar — click deep in the middle of the flower"},
+    {id:"pollen", text:"Use “Move the pollen”: carry pollen from an anther to the sticky stigma"}
+  ];
+  var missionDone={};
+  var mission={
+    render:function(){
+      var ul=document.getElementById("mission"); ul.innerHTML="";
+      var firstOpen=true;
+      MISSION.forEach(function(m){
+        var li=document.createElement("li");
+        var done=!!missionDone[m.id];
+        li.className=done?"done":(firstOpen?"active":"");
+        if(!done)firstOpen=false;
+        li.innerHTML='<span class="box">'+(done?"✓":"")+'</span><span>'+m.text+'</span>';
+        ul.appendChild(li);
+      });
+      var n=Object.keys(missionDone).length;
+      document.getElementById("bar").style.width=Math.round(n/MISSION.length*100)+"%";
+      if(n===MISSION.length) win();
+    },
+    done:function(id){ if(!missionDone[id]){missionDone[id]=true; this.render();} }
+  };
+  function win(){
+    var card=document.getElementById("info"); card.classList.add("win");
+    var pn=card.querySelector(".partname"); pn.className="partname"; pn.textContent="🌱 You did it!";
+    var old=card.querySelector(".chip"); if(old)old.remove();
+    card.querySelector(".desc").className="desc";
+    card.querySelector(".desc").textContent="Now explain how the flower's structures work together. Where is pollen made, where does it land, and what might happen next? Use your observations as evidence.";
+  }
+
+  // =================== drag to dissect ===================
+  var drag=null, carry=null;
+  function onDown(e){
+    if(state.mode==="pollinate"){ startCarry(e); return; }
+    var g=e.target.closest(".part"); if(!g)return;
+    e.preventDefault();
+    var p=svgPoint(e);
+    drag={g:g,sx:p.x,sy:p.y,ox:g.__tx,oy:g.__ty,moved:false,pid:e.pointerId};
+    g.classList.add("dragging");
+    try{svg.setPointerCapture(e.pointerId);}catch(_){}
+  }
+  function onMove(e){
+    if(state.mode==="pollinate"&&!carry){ var pp=svgPoint(e); moveBeak(pp.x,pp.y); }
+    if(carry&&e.pointerId===carry.pid){ moveCarry(e); return; }
+    if(!drag||e.pointerId!==drag.pid)return;
+    var p=svgPoint(e);
+    var dx=p.x-drag.sx, dy=p.y-drag.sy;
+    if(Math.abs(dx)+Math.abs(dy)>6)drag.moved=true;
+    drag.g.__tx=drag.ox+dx; drag.g.__ty=drag.oy+dy; applyPos(drag.g);
+  }
+  function onUp(e){
+    if(carry&&e.pointerId===carry.pid){ endCarry(e); return; }
+    if(!drag||e.pointerId!==drag.pid)return;
+    var g=drag.g; g.classList.remove("dragging");
+    try{svg.releasePointerCapture(e.pointerId);}catch(_){}
+    if(!drag.moved){
+      var p=partById(g.getAttribute("data-id"));
+      var pt=svgPoint(e);
+      var k=keyForClick(p,pt.x-g.__tx,pt.y-g.__ty);
+      selectPart(g); setInfo(k);
+      maybeNectar(pt.x,pt.y);
+    }
+    drag=null;
+  }
+  svg.addEventListener("pointerdown",onDown);
+  svg.addEventListener("pointermove",onMove);
+  svg.addEventListener("pointerup",onUp);
+  svg.addEventListener("pointercancel",onUp);
+  svg.addEventListener("pointerleave",function(){ if(!carry) beak.style.opacity="0"; });
+
+  // =================== nectar find ===================
+  function boxHasNectar(x,y){return dist(x,y,NECTAR.x,NECTAR.y)<NECTAR.r;}
+  function maybeNectar(x,y){
+    if(!boxHasNectar(x,y))return;
+    nectarLayer.innerHTML="";
+    el("circle",{cx:NECTAR.x,cy:NECTAR.y,r:130,fill:"url(#nectarGlow)"},nectarLayer);
+    var drop=el("text",{x:NECTAR.x,y:NECTAR.y+8,"text-anchor":"middle","font-size":"52","font-weight":"700",fill:"#8a5a12"},nectarLayer);
+    drop.textContent="🍯";
+    setHint("You found the <b>nectar</b> — a sweet drink deep in the flower's centre. A pollinator crawls in to reach it, and brushes past the pollen on the way.");
+    mission.done("nectar");
+  }
+
+  // =================== pollinate guide: bullseye target + breadcrumb trail ===================
+  // Ports the 3D lab's "the big one" pollen fix to 2D: a crisp target that reads as
+  // "drop HERE", plus a visible path so a 9-year-old sees where the pollen should travel.
+  function clearGuide(){ guideLayer.innerHTML=""; }
+  function buildGuide(){
+    clearGuide();
+    // source anther: the tip farthest to one side, so the arc sweeps in cleanly (not along the style)
+    var src=stamens[0], best=-1e9;
+    stamens.forEach(function(s){ if(s.ex.x>best){best=s.ex.x; src=s;} });
+    var sx=CX+src.ex.x*R_ANTHER, sy=CY+src.ex.y*R_ANTHER, tx=STIGMA.x, ty=STIGMA.y;
+    // quadratic-bezier control point: midpoint lifted along the perpendicular for a gentle arc
+    var mx=(sx+tx)/2, my=(sy+ty)/2, dx=tx-sx, dy=ty-sy, len=Math.sqrt(dx*dx+dy*dy)||1;
+    var cx=mx-dy/len*len*0.28, cy=my+dx/len*len*0.28;
+    // breadcrumb dots along the curve, pulsing in sequence so the trail "flows" toward the target
+    var N=10;
+    for(var i=1;i<N;i++){
+      var t=i/N, it=1-t;
+      var bx=it*it*sx+2*it*t*cx+t*t*tx, by=it*it*sy+2*it*t*cy+t*t*ty;
+      var dot=el("circle",{cx:bx,cy:by,r:9,fill:"#b2367a",opacity:.75,"class":"crumb"},guideLayer);
+      dot.style.animationDelay=(t*1.1).toFixed(2)+"s";
+    }
+    // a pollen-coloured dot travels the path on a loop (declarative SMIL — no JS animation loop)
+    var travel=el("circle",{r:15,fill:"#e0902f",stroke:"#b8641d","stroke-width":3},guideLayer);
+    el("animateMotion",{dur:"2.4s",repeatCount:"indefinite",path:"M"+sx+" "+sy+" Q"+cx+" "+cy+" "+tx+" "+ty},travel);
+    // pink bullseye reticle on the stigma — outer ring < DROP_R so anything inside it counts
+    var ret=el("g",{},guideLayer);
+    el("circle",{cx:tx,cy:ty,r:118,fill:"none",stroke:"#b2367a","stroke-width":6,"stroke-dasharray":"22 20","class":"reticle-spin"},ret);
+    el("circle",{cx:tx,cy:ty,r:74,fill:"none",stroke:"#b2367a","stroke-width":5,opacity:.85,"class":"reticle-pulse"},ret);
+    el("circle",{cx:tx,cy:ty,r:11,fill:"#b2367a","class":"reticle-pulse"},ret);
+  }
+
+  // =================== pollinate: carry pollen anther -> stigma ===================
+  function startCarry(e){
+    e.preventDefault();
+    var p=svgPoint(e);
+    // must start on/near an anther (forgiving: a tap NEAR a glowing tip counts)
+    var near=stamens.some(function(s){return dist(p.x,p.y,CX+s.ex.x*R_ANTHER,CY+s.ex.y*R_ANTHER)<PICK_R;});
+    if(!near){ setHint("Grab pollen from an <b>anther</b> first — the glowing yellow tips. Then follow the pink trail to the target."); return; }
+    carry={pid:e.pointerId};
+    svg.classList.add("carrying");
+    // a pollen blob rides with the beak
+    seedFx.innerHTML="";
+    moveBeak(p.x,p.y);
+    try{svg.setPointerCapture(e.pointerId);}catch(_){}
+    setHint("Follow the pink trail and drop the pollen on the <b>target</b> — the sticky stigma in the very centre.");
+  }
+  function moveCarry(e){ var p=svgPoint(e); moveBeak(p.x,p.y); }
+  function moveBeak(x,y){
+    // hummingbird beak tip is local (1200,812); map it to the cursor at scale 0.6
+    var s=0.6;
+    beak.setAttribute("transform","translate("+(x-s*1200)+","+(y-s*812)+") scale("+s+")");
+    beak.style.opacity="1";
+    if(carry){
+      var b=document.getElementById("carryBlob");
+      if(!b){ b=el("circle",{id:"carryBlob",r:22,fill:"#e0902f",stroke:"#b8641d","stroke-width":3},seedFx); }
+      b.setAttribute("cx",x); b.setAttribute("cy",y);
+    }
+  }
+  function endCarry(e){
+    var p=svgPoint(e);
+    svg.classList.remove("carrying");
+    try{svg.releasePointerCapture(e.pointerId);}catch(_){}
+    var onStigma=dist(p.x,p.y,STIGMA.x,STIGMA.y)<DROP_R;
+    carry=null;
+    var blob=document.getElementById("carryBlob"); if(blob)blob.remove();
+    if(onStigma){
+      // stick pollen to the stigma, then show a seed forming at the ovary
+      clearGuide();
+      el("circle",{cx:STIGMA.x,cy:STIGMA.y,r:16,fill:"#e0902f",stroke:"#b8641d","stroke-width":3},seedFx);
+      var t=el("text",{x:OVARY.x,y:OVARY.y+10,"text-anchor":"middle","font-size":"46","font-weight":"800",fill:var2("--seeds")},seedFx);
+      t.textContent="🌱";
+      setHint("The sticky <b>stigma</b> caught the pollen from this flower's <b>anther</b>. This model shows transfer within one bloom. Pollen can also move between flowers. A seed may form after later steps.");
+      mission.done("pollen");
+    }else{
+      setHint("Not quite — drop the pollen right on the <b>sticky stigma</b>, the pink tip in the very centre of the flower. Try again.");
+    }
+  }
+  function var2(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim()||"#2e9e5b";}
+
+  // =================== toolbar ===================
+  var btnLabels=document.getElementById("btnLabels"),
+      btnSep=document.getElementById("btnSeparate"),
+      btnPol=document.getElementById("btnPollinate"),
+      btnReset=document.getElementById("btnReset");
+
+  btnLabels.addEventListener("click",function(){
+    var on=svg.classList.toggle("show-labels");
+    btnLabels.classList.toggle("active",on);
+    setHint(on?"Part names are on. Remember: what a part <b>does</b> matters more than its name."
+              :"Names hidden — click a part to check what it does.");
+  });
+
+  function setMode(m){
+    state.mode=m;
+    svg.classList.toggle("pollinate",m==="pollinate");
+    btnPol.classList.toggle("active",m==="pollinate");
+  }
+
+  function separateAll(){
+    parts.forEach(function(p){
+      var d = p.id==="pistil"?210 : (p.id.indexOf("stamen")===0?180:280);
+      p.el.__tx=p.ex.x*d; p.el.__ty=p.ex.y*d; applyPos(p.el);
+    });
+    setMode("explore");
+    setHint("Parts pulled apart. Drag any part to move it, or click it to learn its job. The middle <b>pistil</b> holds the stigma, style and ovary.");
+    mission.done("apart");
+  }
+  btnSep.addEventListener("click",separateAll);
+
+  btnPol.addEventListener("click",function(){
+    if(state.mode==="pollinate"){ setMode("explore"); clearGuide(); setHint("Back to explore mode. Click or drag a part."); return; }
+    resetPositions();
+    setMode("pollinate");
+    seedFx.innerHTML=""; beak.style.opacity="0";
+    buildGuide();
+    setHint("<b>Move the pollen.</b> The cursor is a hummingbird's beak. Press on a glowing <b>anther</b>, follow the pink trail, and drop the pollen on the <b>target</b> over the sticky stigma.");
+  });
+
+  function resetPositions(){
+    parts.forEach(function(p){p.el.__tx=0;p.el.__ty=0;applyPos(p.el);p.el.classList.remove("selected");});
+    state.selected=null;
+  }
+  btnReset.addEventListener("click",function(){
+    resetPositions();
+    setMode("explore");
+    clearGuide();
+    seedFx.innerHTML=""; nectarLayer.innerHTML="";
+    var card=document.getElementById("info"); card.classList.remove("win");
+    var pn=card.querySelector(".partname"); pn.className="partname placeholder"; pn.textContent="Nothing selected yet";
+    var dsc=card.querySelector(".desc"); dsc.className="desc placeholder"; dsc.textContent="Click any part of the flower to see what it does.";
+    var chip=card.querySelector(".chip"); if(chip)chip.remove();
+    setHint("Flower put back together. Click a part to learn its job, or drag to take it apart.");
+  });
+
+  mission.render();
+})();
+</script>
+</body>
+</html>

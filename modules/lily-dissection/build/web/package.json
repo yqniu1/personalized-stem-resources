@@ -1,0 +1,13 @@
+{
+  "name": "lily-3d-build",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Build-time toolchain for the 3D lily dissection (never ships to end user)",
+  "scripts": {
+    "bundle": "esbuild src/three-bundle.mjs --bundle --format=iife --minify --legal-comments=inline --outfile=dist/three-bundle.iife.js"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.1",
+    "three": "^0.160.0"
+  }
+}

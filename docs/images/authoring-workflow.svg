@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="330" viewBox="0 0 1120 330" role="img" aria-labelledby="title description">
+  <title id="title">Proposed authoring workflow</title>
+  <desc id="description">A teacher describes a lesson need. Learning patterns and prebuilt tools guide an AI workflow. It builds a preview for teacher review and revision, then exports a classroom resource. Classroom feedback informs further revision. Lily is an early developer-led example; the teacher-operated service is proposed.</desc>
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#526577" stroke-width="1.5"/></marker></defs>
+  <rect width="1120" height="330" rx="8" fill="#e0ecf8"/>
+  <g fill="#fff" stroke="#a7bfd5" stroke-width="1.5"><rect x="28" y="68" width="230" height="154" rx="6"/><rect x="306" y="68" width="230" height="154" rx="6"/><rect x="584" y="68" width="230" height="154" rx="6"/><rect x="862" y="68" width="230" height="154" rx="6"/></g>
+  <g font-family="Segoe UI,Arial,sans-serif" fill="#213548">
+    <text x="28" y="35" font-size="16">Proposed teacher-operated workflow</text>
+    <g font-size="21" font-weight="600"><text x="48" y="108">Lesson need</text><text x="326" y="108">Patterns + tools</text><text x="604" y="108">Build + review</text><text x="882" y="108">Teaching resource</text></g>
+    <g font-size="17"><text x="48" y="143">Curriculum goal</text><text x="48" y="171">Students and context</text><text x="48" y="199">Classroom constraints</text><text x="326" y="143">Learning-design guidance</text><text x="326" y="171">Reusable interactions</text><text x="326" y="199">Agentic workflows</text><text x="604" y="143">Working preview</text><text x="604" y="171">Teacher revisions</text><text x="604" y="199">Accuracy and alignment</text><text x="882" y="143">Teacher-approved export</text><text x="882" y="171">Use in the lesson</text><text x="882" y="199">Observe and evaluate</text></g>
+    <text x="660" y="286" font-size="17" fill="#526577">Classroom feedback informs revision</text>
+  </g>
+  <g fill="none" stroke="#526577" stroke-width="2" marker-end="url(#arrow)"><path d="M266 145H296"/><path d="M544 145H574"/><path d="M822 145H852"/><path d="M977 231V252H421V230"/></g>
+  <text x="28" y="309" font-family="Segoe UI,Arial,sans-serif" font-size="15" fill="#526577">Lily illustrates an early developer-led process. The teacher-facing service is proposed development.</text>
+</svg>

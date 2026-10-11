@@ -1,0 +1,23 @@
+# Local tooling and session state
+.playwright-mcp/
+HANDOFF.md
+__pycache__/
+*.pyc
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Generated development output; distributable module HTML stays versioned
+modules/*/build/web/dist/
+*.png
+!docs/images/*.png
+
+# Original model files, private curriculum inputs, and local backups
+modules/*/blender/
+modules/*/private-assets/
+modules/*/private-build/
+modules/*/docs/private-source/
+modules/*/assets/lily-segmented-raw.glb
+modules/*/index-2d-backup.html
+*.docx
