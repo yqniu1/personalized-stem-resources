@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parent.parent
 PATTERNS = [
     "README.md", ".gitignore", "index.html", "THIRD_PARTY_NOTICES.md",
     "build/export-public.py", "docs/*.md", "docs/images/*.png", "docs/images/*.svg",
+    "authoring/*.py", "authoring/*.ps1", "authoring/README.md",
+    "shared/*.json", "shared/README.md", "references/README.md", "modules/catalog.json",
     "modules/README.md", "modules/*/README.md", "modules/*/index.html",
     "modules/*/index-2d.html", "modules/*/docs/*.md", "modules/*/src/*.html",
     "modules/*/index-3d.html", "modules/*/assets/lily.glb",

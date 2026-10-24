@@ -14,6 +14,7 @@ modules/*/build/web/dist/
 !docs/images/*.png
 
 # Original model files, private curriculum inputs, and local backups
+/source-assets/
 modules/*/blender/
 modules/*/private-assets/
 modules/*/private-build/

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "defaults": {
+    "offline": true,
+    "keyboard_access": true,
+    "teacher_rationale_separate": true,
+    "language": "en",
+    "automated_explanation_scoring": false
+  },
+  "resources": [
+    {"id": "learnability-patterns", "layer": "learning-engine", "scope": "projects", "path": "website/personal/src/content/patterns", "required": true, "note": "Canonical patterns; select by learning demand, not subject."},
+    {"id": "learning-authoring", "layer": "learning-engine", "scope": "projects", "path": "skills/learning-authoring/SKILL.md", "required": true, "note": "Learning-engineer workflow; research uses the configured niu-library connector."},
+    {"id": "frontend-design", "layer": "tool-skills", "scope": "user", "path": ".codex/skills/frontend-design/SKILL.md", "required": true, "note": "Interface craft for HTML output."},
+    {"id": "blender", "layer": "tool-skills", "scope": "projects", "path": null, "required": false, "note": "Requested tool category; canonical skill not located. Existing Lily scripts are not a reusable Blender skill."},
+    {"id": "lily-assets", "layer": "asset-libraries", "scope": "repo", "path": "modules/lily-dissection/assets", "required": false, "note": "Module-owned illustrations and model; inspect manifest and notices before reuse."},
+    {"id": "twig-images", "layer": "asset-libraries", "scope": "repo", "path": "source-assets/twig/still-images", "required": false, "note": "Local image collection; provenance in source-assets/source-manifest.json."},
+    {"id": "twig-films", "layer": "asset-libraries", "scope": "repo", "path": "source-assets/twig/tigtag-offline-demo", "required": false, "note": "Original offline bundle; no recovered reusable playback/authoring engine asserted."},
+    {"id": "twig-curriculum", "layer": "curriculum", "scope": "repo", "path": "source-assets/twig/ttl", "required": false, "note": "Original curriculum collection. Individual files still need lesson-level selection and review."},
+    {"id": "talent-curriculum", "layer": "curriculum", "scope": "repo", "path": "source-assets/talent-academy/curriculum-and-project-samples", "required": false, "note": "Earlier Talent Academy sources; not a verified copy of the 2018 English engine."},
+    {"id": "mcas-reference", "layer": "standards", "scope": "repo", "path": "references/mcas.png", "required": false, "note": "Supplied image only; exact standard, jurisdiction and grade not verified."}
+  ]
+}

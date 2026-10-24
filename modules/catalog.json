@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "modules": [
+    {
+      "id": "lily-dissection", "title": "Lily Dissection",
+      "subjects": ["science", "biology"], "level": "grade-4", "status": "packaged",
+      "objectives": ["Explain how flower structures contribute to pollination and reproduction."],
+      "curriculum": "OpenSciEd Grade 4 Unit 4.4, Lesson 13; independent supplement.",
+      "standards": [{"framework": "NGSS", "code": "4-LS1-1", "status": "candidate", "authority_url": null, "evidence": "modules/lily-dissection/docs/design-lesson13-alignment.md", "note": "Existing local alignment rationale; exact authoritative wording and full coverage not verified in this catalog."}],
+      "resources": ["lily-assets"], "preferences": {},
+      "brief": "modules/lily-dissection/README.md",
+      "reference": "modules/lily-dissection/index-2d.html",
+      "location": {"scope": "repo", "path": "modules/lily-dissection"},
+      "note": "Working resource; separate student explanation needed. Existing keyboard limitations remain."
+    },
+    {
+      "id": "tiger-structures", "title": "Tiger structure teamwork",
+      "subjects": ["science", "biology"], "level": "grade-4", "status": "workspace",
+      "objectives": ["Explain two structures working together and one structure contributing to multiple functions."],
+      "curriculum": "Teacher-requested prototype; no supplied curriculum authority.",
+      "standards": [], "resources": [], "preferences": {}, "brief": null, "reference": null,
+      "location": {"scope": "appdata", "path": "STEMAuthoring/grounded-workspace"},
+      "note": "Observed 2026-10-24: r-dcfd4cc071f5, no active task, teacher acceptance null. Disposable workspace; this is a dated locator, not a retained package."
+    },
+    {
+      "id": "pollen-route", "title": "Two-flower pollen route",
+      "subjects": ["science", "biology"], "level": "grade-4", "status": "historical",
+      "objectives": ["Explain a pollen route and distinguish pollination from fertilization and seed formation."],
+      "curriculum": "Operator test request.", "standards": [], "resources": [], "preferences": {},
+      "brief": null, "reference": null,
+      "location": {"scope": "appdata", "path": "STEMAuthoring/grounded-workspace/RETRO.md"},
+      "note": "Retrospective survives; generated outputs were included in recorded disposable resets. Not a runnable catalog artifact."
+    },
+    {
+      "id": "series-circuit", "title": "Close the loop",
+      "subjects": ["science", "physics"], "level": "grade-4", "status": "historical",
+      "objectives": ["Explain a complete series circuit and diagnose a broken-switch transfer case."],
+      "curriculum": "Operator test request.", "standards": [], "resources": [], "preferences": {},
+      "brief": null, "reference": null,
+      "location": {"scope": "appdata", "path": "STEMAuthoring/grounded-workspace/RETRO.md"},
+      "note": "Retrospective survives; generated outputs were included in recorded disposable resets. Not a runnable catalog artifact."
+    },
+    {
+      "id": "shadow-detective", "title": "Shadow Detective",
+      "subjects": ["science", "physics"], "level": "grade-4", "status": "historical",
+      "objectives": ["Predict and explain shadow changes while controlling light and object positions."],
+      "curriculum": "Operator test request; Grade 4 was an author assumption.",
+      "standards": [], "resources": [], "preferences": {}, "brief": null, "reference": null,
+      "location": {"scope": "appdata", "path": "STEMAuthoring/grounded-workspace/RETRO.md"},
+      "note": "Includes language-support revision in RETRO.md; subsequently reset. Not a runnable catalog artifact."
+    },
+    {
+      "id": "psychometrics-statistics", "title": "Measurement invariance and simulation",
+      "subjects": ["psychometrics", "statistics"], "level": "doctoral", "status": "planned",
+      "objectives": ["Specify an identified measurement model and justify its assumptions.", "Design a simulation to distinguish parameter recovery, uncertainty and model misspecification.", "Defend a cross-group comparison using explicit invariance assumptions and sensitivity checks."],
+      "curriculum": "Proposed doctoral stress-test case; syllabus and course outcomes not supplied by Peter.",
+      "standards": [], "resources": [],
+      "preferences": {"show_model_assumptions": true, "reproducible_simulation": true, "preserve_mathematical_depth": true},
+      "brief": "modules/psychometrics-statistics/README.md", "reference": null,
+      "location": {"scope": "repo", "path": "modules/psychometrics-statistics"},
+      "note": "Prepared test brief, not a generated or validated lesson. Uses the same shared engine; no Lily reference or K-12 standard assumed."
+    }
+  ]
+}

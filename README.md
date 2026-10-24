@@ -4,9 +4,23 @@ A speculative prototype for an AI authoring tool that helps teachers talk a curr
 
 I want teachers to describe what their class needs, see a working preview, and refine it through conversation. Learning-design patterns would guide the choices behind the resource, while prebuilt tools would supply interactions such as exploration, sorting, and modeling. The teacher would decide what to use in the classroom.
 
-This repository contains the first module, **Lily Dissection**, and the proposal for developing the broader authoring tool through the 2027 Tools Competition's Catalyst program.
+This repository contains **Lily Dissection**, a local authoring workbench, a shared resource registry, and a module catalog. The catalog also locates earlier science experiments and a proposed doctoral psychometrics/statistics stress test. The 2027 Tools Competition proposal describes the broader product direction.
 
 ## Start here
+
+For lesson design and management, start with [the module catalog guide](modules/README.md)
+and [shared authoring resources](shared/README.md). The builder uses the same learning
+engine across subjects; each module supplies curriculum, objectives, standards and preferences.
+
+```powershell
+python authoring/catalog.py list
+python authoring/catalog.py list --subject science
+python authoring/catalog.py list --standard 4-LS1-1
+.\authoring\start.ps1 -Module psychometrics-statistics
+```
+
+The last command opens a separate workspace for the [doctoral stress-test brief](modules/psychometrics-statistics/README.md).
+It does not start generation automatically. The brief is prepared; an advanced lesson has not yet been generated or evaluated.
 
 Open [index.html](index.html) in a browser for an illustrated overview, or go directly to the [Lily module](modules/lily-dissection/index.html). The module opens from disk in 3-D, with a 2-D option and automatic fallback. It needs no installation or internet connection.
 
@@ -22,7 +36,7 @@ I built the initial Lily application for a teacher's need in under four hours, u
 
 The useful starting point is the authoring process: a teacher's lesson and constraints shaped a small, working application. Lily currently has one user. Three teachers are providing feedback on the broader work.
 
-The next step is to make this process usable by teachers themselves. This repo contains a working instructional resource; the conversational authoring service and reusable tool library are proposed development.
+The next step is to make this process usable by teachers themselves. This repo contains a working instructional resource and an early local authoring workbench for Peter's tests. Independent teacher use and a reusable instructional tool library remain proposed development.
 
 ## The proposed authoring process
 
@@ -38,16 +52,60 @@ The funding would support a teacher-facing authoring experience, a stronger lear
 
 The main question is whether teachers can independently create useful resources with this workflow, and how it compares with general-purpose AI on the same lesson requests.
 
+## Authoring canvas
+
+The [local authoring workbench](authoring/README.md) now connects a lesson workspace to niu-prototyper's live canvas and Codex terminal. On Peter's Windows machine, run:
+
+```powershell
+.\authoring\start.ps1
+```
+
+Enter a request in the terminal; the agent can read local materials, generate a standalone HTML lesson, save a revision/export, and refresh the canvas. One actual Codex creation/revision loop has been tested, including a Windows material path and selected offline keyboard interactions. See the [build plan and evidence](docs/plan-local-authoring-test.md). This is ready for Peter's operator test; it does not establish independent teacher usability or classroom readiness.
+
+The [first authoring workflow design](docs/design-authoring-workflow.md) scopes an assisted teacher trial, a portable agent handoff, and tests for review, recovery, and export. Peter confirmed the assisted-teacher population; the proposed Lily adaptation still needs a participating teacher's actual request. This is a design, not an implemented authoring service.
+
+The [rehearsal findings and next steps](docs/plan-authoring-rehearsal.md) record targeted checks of the existing tools. The selected 2-D keyboard path needs work before a teacher trial; teacher usability and agent interchangeability remain untested.
+
+A [portable authoring packet experiment](docs/authoring-packet-contract.md) now records a synthetic operator loop through two revisions and an export. It separates task state, artifact identity, operator review, and teacher approval; it is a manual protocol rather than an integrated authoring service.
+
+The intended starting point is Peter's existing local tooling:
+
+| Existing tool | Role in the authoring prototype |
+|---|---|
+| Document Canvas | Edit lesson briefs and supporting documents, review assets, and exchange comments with the agent |
+| niu-prototyper | Preview the running interactive resource and attach feedback to interface elements |
+| The active coding agent | Create and revise resource source files using the lesson context and teacher-builder's requests |
+
+The first implemented connection uses the existing agent terminal and niu-prototyper, plus a small file-based publication helper. Document Canvas's editable brief surface remains a separate tool; its HTML preview disables scripts. A unified teacher-facing conversation interface and the level of specialist assistance teachers need remain questions to investigate.
+
+### Interchangeable agent layer
+
+Agent interchangeability is a design requirement to validate during prototyping. Codex, Claude Code, and Antigravity (agy) are the prototype agents. The teacher workspace, lesson context, resource files, and review history should remain usable when the agent changes. Provider-specific launch and session handling belong behind adapters; an identical terminal surface alone does not establish equivalent behavior or portable conversation state.
+
+A future custom agent could use a model fine-tuned on educational data, together with the tools and orchestration needed to build and revise resources. This is an option for later scale, not a prerequisite for the current prototype. The shared contract should describe how an agent receives requests and workspace context, uses tools, reports progress and failures, and submits reviewable changes. Its exact interface remains to be designed. Educational quality and coding reliability must be evaluated for each implementation; satisfying the interface does not establish equal quality.
+
 ## Repository layout
 
 ```text
 index.html                 Illustrated project overview
 docs/                      Proposal and prototype walkthrough
+authoring/                 Local workspace helper, launcher, and tests
+shared/                    Shared engine, assets, skills, curriculum and defaults
+references/                Supplied reference inputs (including local MCAS image)
+source-assets/             Local original collections and transfer manifests; ignored
 modules/
+  catalog.json             Subject/standard metadata and actual lesson locations
   lily-dissection/         First working module, assets, sources, and builds
+  psychometrics-statistics/ Doctoral stress-test brief; no generated lesson yet
 ```
 
 Each module keeps its lesson-specific source and assets together. The Lily HTML files are generated from templates; edit the module source and rebuild them. Adding another module does not require changing Lily's implementation. See [module conventions](modules/README.md).
+
+Science experiments in the external disposable workspace are cataloged by their
+actual state. Tiger is the last observed current lesson; pollen, circuits and Shadow
+Detective have retrospective records after resets. They are not silently reconstructed
+or presented as packaged modules. See [documentation navigation](docs/README.md)
+for current guides versus historical tests and proposals.
 
 ## Attribution and publication status
 
