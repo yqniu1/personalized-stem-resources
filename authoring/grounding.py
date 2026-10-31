@@ -128,7 +128,7 @@ def publication(root, task):
     return design, receipts
 
 
-def review_html(design, receipts):
+def review_html(design, receipts, implementation=None):
     def text(value):
         return escape(str(value))
     parts = ['<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width">'
@@ -145,6 +145,19 @@ def review_html(design, receipts):
     for d in design["decisions"]:
         parts.append("<h3>" + text(d["choice"]) + "</h3><p>" + text(d["reason"]) + "</p><p>Check: "
                      + text(d["check"]) + "</p><p>Sources: " + text(", ".join(d["sources"])) + "</p>")
+    if implementation:
+        parts.append("<h2>Implementation checks</h2><p>Checks refer to this exact lesson version. Static text matches do not establish working interactions. Reviewer observations are attributed reports, not independent certification.</p>")
+        for warning in implementation["warnings"]:
+            parts.append("<p>" + text(warning) + "</p>")
+        for row in implementation["decisions"]:
+            parts.append("<h3>" + text(row["choice"]) + "</h3><p>Status: " + text(row["status"]) + "</p><p>Expected: " + text(row["expected_behavior"]) + "</p>")
+            if not row["checks"]:
+                parts.append("<p>No implementation observation recorded.</p>")
+            for check in row["checks"]:
+                location = check.get("location", "#" + check.get("element_id", ""))
+                parts.append("<p>" + text(check["method"]) + " — " + text(check["outcome"]) + " at " + text(location) + "</p><p>Observed: " + text(check["actual"]) + "</p><p>" + text(check["limit"]) + "</p>")
+                if "reviewer" in check:
+                    parts.append("<p>Reviewer: " + text(check["reviewer"]) + "</p><p>Procedure: " + text(check["procedure"]) + "</p><p>Expected: " + text(check["expected"]) + "</p><details><summary>Recorded test evidence</summary><pre>" + text(check["evidence_text"]) + "</pre></details>")
     parts.append("<h2>Local design sources</h2><ul>")
     for receipt in receipts:
         path = Path(receipt["path"])
@@ -161,10 +174,13 @@ def review_html(design, receipts):
     return "\n".join(parts).encode()
 
 
-def snapshot(root, directory, design, receipts):
+def snapshot(root, directory, design, receipts, implementation=None):
     lesson.save_json(directory / "design.json", design)
-    lesson.atomic(directory / "design.html", review_html(design, receipts))
+    lesson.atomic(directory / "design.html", review_html(design, receipts, implementation))
     hashes = {}
+    if implementation:
+        lesson.save_json(directory / "artifact-checks.json", implementation)
+        hashes["artifact-checks.json"] = lesson.digest((directory / "artifact-checks.json").read_bytes())
     context = root / "materials/module-context.json"
     if context.exists():
         lesson.atomic(directory / "module-context.json", context.read_bytes())

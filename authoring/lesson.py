@@ -176,7 +176,18 @@ and explain the missing connection. Preserve your draft.
      If the design changes, review and prepare it again before publishing.
      For a minor revision retain relevant evidence, bind the record to the new task/base, and
      update affected decisions. Refresh research only when its relevance or learning demand changes.
-4. Run `python3 tools/lesson.py publish --task TASK_ID --summary "What changed"`.
+4. Run `python3 tools/lesson.py verify-artifact --task TASK_ID` after implementation.
+   Each decision is reported separately. Add artifact_checks to decisions for concrete HTML
+   requirements: [{"kind":"element_text","element_id":"transfer","contains":"new situation"}].
+   This tests source text, not visible or interactive behavior. For behavior, actually exercise
+   the lesson and record artifact-review.json using the task/artifact/design hashes and decision
+   IDs returned by verify-artifact. Observations require method (agent_browser_review or
+   human_review), reviewer, location, procedure, expected, actual, outcome (observed,
+   not_observed, not_checked), evidence_path and evidence_sha256. Preserve actual test evidence
+   in a workspace-relative .txt/.md/.json file. Never invent a test or treat prose as execution.
+   Re-run verify-artifact, repair observed gaps, and report anything still unchecked.
+   Changed HTML/design invalidates prior observations. Unreviewed drafts can still publish.
+   Run `python3 tools/lesson.py publish --task TASK_ID --summary "What changed"`.
    This checks HTML structure and JavaScript syntax, saves a revision and export, then updates preview/index.html.
    On failure, fix source and retry the same task. Never edit preview/, revisions/, exports/, or workspace.json by hand.
 5. Run `python3 tools/lesson.py canvas reload` to update the open canvas.
@@ -243,6 +254,7 @@ def initialize(root, reference=None, knowledge=None, module_context=None):
         (root / name).mkdir()
     shutil.copy2(Path(__file__).resolve(), root / "tools/lesson.py")
     shutil.copy2(Path(__file__).resolve().with_name("grounding.py"), root / "tools/grounding.py")
+    shutil.copy2(Path(__file__).resolve().with_name("artifact_checks.py"), root / "tools/artifact_checks.py")
     save_json(root / "knowledge.json", knowledge or {})
     if module_context is not None:
         save_json(root / "materials/module-context.json", module_context)
@@ -326,6 +338,8 @@ def publish(root, task_id, summary):
         checks = validate(data)
         import grounding
         design, receipts = grounding.publication(root, task)
+        import artifact_checks
+        implementation = artifact_checks.report(root, task, design, data)
         if digest((root / "preview/index.html").read_bytes()) != task["base_sha256"]:
             raise ValueError("Preview changed since this task began. Existing preview preserved; reconcile before publishing.")
         revision = "r-" + task_id
@@ -334,17 +348,19 @@ def publish(root, task_id, summary):
         snapshot.mkdir()
         atomic(snapshot / "index.html", data)
         atomic(snapshot / "previous.html", (root / "preview/index.html").read_bytes())
-        design_hashes = grounding.snapshot(root, snapshot, design, receipts)
+        design_hashes = grounding.snapshot(root, snapshot, design, receipts, implementation)
         record = {"revision": revision, "task": task_id, "sha256": digest(data),
                   "summary": summary, "checks": checks, "review": "unreviewed",
                   "request": task["request"], "base_revision": task["base_revision"],
                   "design_files": design_hashes,
-                  "grounding_status": "Documented; research interpretations not independently verified"}
+                  "grounding_status": "Documented; research interpretations not independently verified",
+                  "artifact_checks": implementation,
+                  "rationale_exports": ["design.html", "design.json", "artifact-checks.json"]}
         save_json(snapshot / "manifest.json", record)
         export = root / "exports" / (revision + ".html")
         with export.open("xb") as output:
             output.write(data)
-        for name in ("design.html", "design.json"):
+        for name in record["rationale_exports"]:
             with (root / "exports" / (revision + "." + name)).open("xb") as output:
                 output.write((snapshot / name).read_bytes())
         save_json(root / "publish-pending.json", record)
@@ -374,7 +390,7 @@ def recover(root):
         snapshot = root / "revisions" / record["revision"]
         import grounding
         grounding.verify_snapshot(snapshot, record["design_files"])
-        for name in ("design.html", "design.json"):
+        for name in record.get("rationale_exports", ["design.html", "design.json"]):
             if (root / "exports" / (record["revision"] + "." + name)).read_bytes() != (snapshot / name).read_bytes():
                 raise ValueError("Recovery design export conflict.")
         data = (snapshot / "index.html").read_bytes()
@@ -408,7 +424,7 @@ def abandon(root, task_id):
 
 
 GENERATED_DIRS = ("src", "preview", "tasks", "revisions", "exports", "evidence")
-RESET_PATHS = (*GENERATED_DIRS, "design.json", "design.html", "request.txt",
+RESET_PATHS = (*GENERATED_DIRS, "design.json", "design.html", "request.txt", "artifact-checks.json", "artifact-review.json",
                ".niu-prototyper/snapshots", ".niu-prototyper/overlays")
 DISPOSABLE_STARTER = STARTER.replace(
     "<small>Personalized STEM Resources</small>",
@@ -596,6 +612,8 @@ def main():
     receipt.add_argument("--path", type=Path, required=True)
     design = commands.add_parser("design")
     design.add_argument("--task", required=True)
+    verification = commands.add_parser("verify-artifact")
+    verification.add_argument("--task", required=True)
     preview = commands.add_parser("canvas")
     preview.add_argument("action", choices=("reload", "inbox", "read", "claim", "reply", "finish"))
     preview.add_argument("--id")
@@ -610,6 +628,9 @@ def main():
             result = begin(root, args.prompt if args.prompt is not None else args.prompt_file.read_text(encoding="utf-8"))
         elif args.command == "publish":
             result = publish(root, args.task, args.summary)
+        elif args.command == "verify-artifact":
+            import artifact_checks
+            result = artifact_checks.verify(root, args.task)
         elif args.command == "abandon":
             result = abandon(root, args.task)
         elif args.command == "recover":

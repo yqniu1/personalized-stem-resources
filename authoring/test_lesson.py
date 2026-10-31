@@ -8,6 +8,7 @@ import threading
 from pathlib import Path
 import lesson
 import grounding
+import artifact_checks
 
 VALID = b"<!doctype html><html><head><title>Test</title></head><body><main><h1>Pollen</h1><button>Try</button><script>let n=1;</script></main></body></html>"
 
@@ -52,6 +53,112 @@ class WorkspaceTests(unittest.TestCase):
         lesson.initialize(self.root)
         self.assertEqual((self.root / "src/lesson.html").read_bytes(), VALID)
         self.assertIsNotNone(lesson.read_json(self.root / "workspace.json")["active_task"])
+
+    def test_tiger_transfer_principle_survives_prose_but_missing_prompt_is_detected(self):
+        # Minimal fixture adapted from the existing Tiger lesson's #transfer section.
+        # This is a mutation test, not a claim that the live Tiger lesson lacks transfer.
+        task_id = self.draft()
+        design = lesson.read_json(self.root / "design.json")
+        design["decisions"][0].update(
+            choice="Reuse eyes across prey detection and shelter discovery",
+            check="Final prompt asks for the same structure in a changed goal",
+            artifact_checks=[{"kind": "element_text", "element_id": "transfer",
+                              "contains": "What changes about their job?"}])
+        lesson.save_json(self.root / "design.json", design)
+        grounding.prepare(self.root, task_id)
+        good = b'<html><title>Tiger</title><main><h1>Tiger</h1><section id="transfer" hidden><label>Use eyes as your example. Explain how they work with another structure to help get food, and how they work with another structure to find shelter. What changes about their job?</label></section></main></html>'
+        path = self.root / "src/lesson.html"
+        path.write_bytes(good)
+        result = artifact_checks.verify(self.root, task_id)
+        self.assertEqual(result["decisions"][0]["checks"][0]["outcome"], "observed")
+        self.assertEqual(result["decisions"][0]["status"], "needs_review")  # hidden/runtime not verified
+        path.write_bytes(good.replace(b"What changes about their job?", b"Name a tiger body part."))
+        result = artifact_checks.verify(self.root, task_id)
+        self.assertEqual(result["decisions"][0]["status"], "gap")
+        publication = lesson.publish(self.root, task_id, "Deliberate gap fixture")
+        self.assertEqual(publication["artifact_checks"]["decisions"][0]["status"], "gap")
+        self.assertIn("gap", (self.root / "preview/design.html").read_text())
+        self.assertTrue((self.root / "exports" / (publication["revision"] + ".artifact-checks.json")).exists())
+
+    def review_fixture(self):
+        task_id = self.draft()
+        report = artifact_checks.verify(self.root, task_id)
+        evidence = b"Synthetic fixture: inspected Try button; not an actual browser test."
+        (self.root / "notes.txt").write_bytes(evidence)
+        review = {key: report[key] for key in ("task", "artifact_sha256", "design_sha256")}
+        review["observations"] = [{"decision_id": report["decisions"][0]["decision_id"],
+            "method": "human_review", "reviewer": "synthetic test fixture", "location": "button Try",
+            "procedure": "Fixture review only", "expected": "Button exists", "actual": "Fixture button found",
+            "outcome": "observed", "evidence_path": "notes.txt", "evidence_sha256": lesson.digest(evidence)}]
+        lesson.save_json(self.root / "artifact-review.json", review)
+        return task_id, review
+
+    def test_review_is_attributed_and_stale_artifact_invalidates_it(self):
+        task_id, _ = self.review_fixture()
+        report = artifact_checks.verify(self.root, task_id)
+        self.assertEqual(report["decisions"][0]["status"], "review_reported")
+        self.assertIn("Synthetic fixture", report["decisions"][0]["checks"][0]["evidence_text"])
+        (self.root / "src/lesson.html").write_bytes(VALID + b"<!-- edit -->")
+        report = artifact_checks.verify(self.root, task_id)
+        self.assertEqual(report["decisions"][0]["status"], "needs_review")
+        self.assertIn("stale", report["warnings"][0])
+
+    def test_static_match_ignores_script_style_and_duplicate_ids(self):
+        task_id = self.draft()
+        design = lesson.read_json(self.root / "design.json")
+        design["decisions"][0]["artifact_checks"] = [{"kind": "element_text", "element_id": "transfer", "contains": "Explain why"}]
+        task = lesson.task_record(self.root, task_id)
+        for markup in (b'<section id="transfer"><script>"Explain why"</script><style>/*Explain why*/</style></section>',
+                       b'<p id="transfer">Explain why</p><p id="transfer">Explain why</p>'):
+            self.assertEqual(artifact_checks.report(self.root, task, design, markup)["decisions"][0]["status"], "gap")
+
+    def test_design_change_invalidates_review_even_with_same_html(self):
+        task_id, _ = self.review_fixture()
+        design = lesson.read_json(self.root / "design.json")
+        design["decisions"][0]["check"] = "New expected interaction"
+        lesson.save_json(self.root / "design.json", design)
+        grounding.prepare(self.root, task_id)
+        report = artifact_checks.verify(self.root, task_id)
+        self.assertIn("stale", report["warnings"][0])
+
+    def test_review_rejects_unknown_decision_and_changed_evidence(self):
+        task_id, review = self.review_fixture()
+        review["observations"][0]["decision_id"] = "unknown"
+        lesson.save_json(self.root / "artifact-review.json", review)
+        with self.assertRaisesRegex(ValueError, "unknown decision"):
+            artifact_checks.verify(self.root, task_id)
+        review["observations"][0]["decision_id"] = artifact_checks.decision_id(lesson.read_json(self.root / "design.json")["decisions"][0])
+        lesson.save_json(self.root / "artifact-review.json", review)
+        (self.root / "notes.txt").write_text("Changed")
+        with self.assertRaisesRegex(ValueError, "hash changed"):
+            artifact_checks.verify(self.root, task_id)
+
+    def test_review_evidence_cannot_escape_workspace(self):
+        task_id, review = self.review_fixture()
+        review["observations"][0]["evidence_path"] = "../outside.txt"
+        lesson.save_json(self.root / "artifact-review.json", review)
+        with self.assertRaisesRegex(ValueError, "workspace-relative"):
+            artifact_checks.verify(self.root, task_id)
+
+    def test_unchecked_decisions_and_recovery_preserve_report(self):
+        task_id = self.draft()
+        with patch.object(lesson, "complete_publication", side_effect=OSError("interrupted")):
+            with self.assertRaises(OSError):
+                lesson.publish(self.root, task_id, "Test")
+        revision = "r-" + task_id
+        saved = lesson.read_json(self.root / "revisions" / revision / "artifact-checks.json")
+        self.assertEqual(saved["decisions"][0]["status"], "needs_review")
+        lesson.recover(self.root)
+        self.assertEqual(lesson.read_json(self.root / "exports" / (revision + ".artifact-checks.json")), saved)
+
+    def test_recovery_rejects_tampered_implementation_report(self):
+        task_id = self.draft()
+        with patch.object(lesson, "complete_publication", side_effect=OSError("interrupted")):
+            with self.assertRaises(OSError):
+                lesson.publish(self.root, task_id, "Test")
+        (self.root / "revisions" / ("r-" + task_id) / "artifact-checks.json").write_text("{}")
+        with self.assertRaisesRegex(ValueError, "snapshot conflict"):
+            lesson.recover(self.root)
 
     def test_additional_tool_skill_receipt_and_module_snapshot(self):
         task_id = self.draft()

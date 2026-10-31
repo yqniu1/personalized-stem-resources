@@ -172,6 +172,66 @@ Fill `design.json` using `design.example.json`,
 then run `python3 tools/lesson.py design --task ID` before editing and publishing.
 For revisions, retain relevant evidence but bind the design to the new task and base.
 
+## Check whether the design reached the lesson
+
+After implementation, run `python3 tools/lesson.py verify-artifact --task ID`.
+The helper writes `artifact-checks.json`, bound to the current HTML, prepared design
+and task. It reports each decision separately, including decisions with no observations.
+Publication recomputes this report and retains it with the revision and export;
+the existing teacher rationale shows gaps and unchecked decisions. Drafts remain
+publishable when checks are missing or report gaps.
+
+Add concrete static requirements to a decision in `design.json`, then prepare the
+design again before verification:
+
+```json
+"artifact_checks": [
+  {"kind": "element_text", "element_id": "transfer",
+   "contains": "What changes about their job?"}
+]
+```
+
+This checks normalized text inside one uniquely identified HTML element. It excludes
+script/style text and rejects duplicate IDs as a match. It does **not** establish
+visibility, accessibility or working behavior; hidden elements may match. A matching
+text assertion leaves the decision at `needs_review`; a missing requirement reports
+`gap`. Write task-specific checks before implementation where practical, and review
+whether the assertion actually represents the principle. The helper cannot make that
+judgment for you.
+
+For behavior, exercise the artifact and retain actual test evidence in a workspace
+`.txt`, `.md` or `.json` file. Copy the `task`, `artifact_sha256`, `design_sha256`
+and relevant `decision_id` from the latest report into `artifact-review.json`:
+
+```json
+{
+  "task": "COPY_FROM_REPORT", "artifact_sha256": "COPY_FROM_REPORT",
+  "design_sha256": "COPY_FROM_REPORT",
+  "observations": [{
+    "decision_id": "COPY_FROM_REPORT", "method": "agent_browser_review",
+    "reviewer": "actual reviewer identity", "location": "#transfer",
+    "procedure": "Actual actions and inputs used, including the wrong-answer path",
+    "expected": "The specific observable behavior required by the decision",
+    "actual": "What actually happened", "outcome": "observed",
+    "evidence_path": "notes/transfer-test.md", "evidence_sha256": "ACTUAL_FILE_SHA256"
+  }]
+}
+```
+
+Allowed review methods are `agent_browser_review` and `human_review`; outcomes are
+`observed`, `not_observed`, and `not_checked`. Record the actual evidence file's hash
+(PowerShell: `(Get-FileHash notes/transfer-test.md -Algorithm SHA256).Hash.ToLower()`).
+Run `verify-artifact` again. Successful reported observations are labeled
+`review_reported`, never automatically certified. Changed HTML, design or task makes
+the old report stale; changed evidence bytes are rejected. Evidence text and its hash
+are embedded in the revision report so later edits do not rewrite the record.
+
+The authoring helper does not execute browser scenarios or authenticate a reviewer's
+claims. An independent reviewer can use the retained evidence to check them. Neither
+static assertions nor reported observations establish scientific accuracy, learner
+outcomes, or teacher acceptance. Existing workspaces keep their copied helpers; use
+a fresh workspace for this version, preserving active workspaces.
+
 ## Recovery
 
 Press **Esc** to interrupt a Codex turn. Ending the CLI uses its normal Ctrl+C/exit
