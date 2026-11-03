@@ -11,6 +11,7 @@ with explicit status, so a module can appear in several subject views without co
 | Two-flower pollen route | Science, biology / Grade 4 | Retrospective after reset |
 | Close the loop | Science, physics / Grade 4 | Retrospective after reset |
 | Shadow Detective | Science, physics / assumed Grade 4 | Retrospective including language-support revision, after reset |
+| [Multilevel foundations](multilevel-foundations/README.md) | Statistics / graduate | Written refresher with a seeded R script; prerequisite for psychometrics/statistics |
 | [Psychometrics/statistics](psychometrics-statistics/README.md) | Psychometrics, statistics / doctoral | Proposed measurement-invariance and simulation stress-test brief |
 
 The workspace observations above are dated 2026-10-24; catalog entries do not poll

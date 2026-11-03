@@ -4,7 +4,7 @@ A speculative prototype for an AI authoring tool that helps teachers talk a curr
 
 I want teachers to describe what their class needs, see a working preview, and refine it through conversation. Learning-design patterns would guide the choices behind the resource, while prebuilt tools would supply interactions such as exploration, sorting, and modeling. The teacher would decide what to use in the classroom.
 
-This repository contains **Lily Dissection**, a local authoring workbench, a shared resource registry, and a module catalog. The catalog also locates earlier science experiments and a proposed doctoral psychometrics/statistics stress test. The 2027 Tools Competition proposal describes the broader product direction.
+This repository contains **Lily Dissection**, a local authoring workbench, a shared resource registry, and a module catalog. The catalog also locates earlier science experiments and a proposed doctoral psychometrics/statistics stress test, preceded by a multilevel-foundations refresher (`modules/multilevel-foundations/`). The 2027 Tools Competition proposal describes the broader product direction.
 
 ## Start here
 

@@ -12,6 +12,11 @@ identification reasoning, simulation design, analysis, and a written defense.
 Let the learner investigate a deliberately misspecified case and revise the claim.
 The intellectual task should survive a change of dataset, parameters or group labels.
 
+Prerequisite unit: [multilevel foundations](../multilevel-foundations/README.md)
+(ANOVA within/between, fixed vs random effects, multilevel models for nested survey
+data). Its closing section links random intercepts, school-mean reliability and
+multilevel measurement to this unit.
+
 Assumed prerequisites: graduate regression, probability, likelihood, matrix
 notation and introductory latent-variable modeling. Confirm these with the teacher
 when authoring. Duration, software language and exact syllabus remain open.
