@@ -56,12 +56,14 @@ def main():
                              'Do not create a lesson until the user asks. Follow the local begin/publish/reload workflow."'
         }}
         lesson.save_json(registry_path, registry)
-    command = [node, str(cli), "start", "--project", project_id, "--terminal", "--json"]
+    # The terminal drawer opens closed so the lesson gets the full width; the top-bar Terminal button (Ctrl+`) toggles it.
+    command = [node, str(cli), "start", "--project", project_id, "--json"]
     if args.no_open:
         command.append("--no-open")
     subprocess.run(command, check=True)
     print(json.dumps({"workspace": str(root), "project": project_id,
-                      "next": "Terminal > Start an agent > lesson-author. Reopening reuses the existing terminal."}))
+                      "next": "Click Terminal in the top bar (Ctrl+`) > Start an agent > lesson-author. "
+                              "Reopening reuses the existing terminal."}))
 
 
 if __name__ == "__main__":

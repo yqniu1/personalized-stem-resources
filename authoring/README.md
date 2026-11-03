@@ -46,7 +46,9 @@ The doctoral entry is a prepared stress-test specification, not an evaluated les
 
 ## Author a lesson
 
-The canvas opens with a terminal drawer. Choose **lesson-author** under
+The canvas opens with the lesson at full width and the terminal drawer closed. Click
+**Terminal** in the top bar (Ctrl+`) to open it; it can dock left, bottom or right and
+toggles closed again without stopping the agent. Choose **lesson-author** under
 **Start an agent** if an agent is not already running. Enter a lesson request in
 the terminal and press Enter. For example:
 
